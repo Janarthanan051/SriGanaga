@@ -44,6 +44,11 @@ const AccessDeniedPage = React.lazy(() => import('@pages/AccessDenied'));
 const LandingPage = React.lazy(() => import('@pages/LandingPage'));
 const PendingApprovalPage = React.lazy(() => import('@pages/auth/PendingApproval'));
 
+// Storefront Pages
+const StoreLayout = React.lazy(() => import('@pages/storefront/StoreLayout'));
+const Storefront = React.lazy(() => import('@pages/storefront/Storefront'));
+const Checkout = React.lazy(() => import('@pages/storefront/Checkout'));
+
 // Suspense fallback
 const PageLoader = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
@@ -67,6 +72,13 @@ const AppRoutes: React.FC = () => {
       {/* Public Routes */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignUpPage />} />
+      <Route path="/pending-approval" element={<PendingApprovalPage />} />
+      
+      {/* Storefront Routes */}
+      <Route path="/store" element={<StoreLayout />}>
+        <Route index element={<Storefront />} />
+        <Route path="checkout" element={<Checkout />} />
+      </Route>
 
       {/* Protected Routes */}
       <Route
