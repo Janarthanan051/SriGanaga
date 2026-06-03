@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Card, Table, Button, Input, Tag, Modal, Form, Select, InputNumber, Space, message, DatePicker } from 'antd';
 import { PlusOutlined, SearchOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { supabase } from '@config/supabase';
-import { useAuth } from '@hooks/useAuth';
-import { PurchaseRequest, PurchaseRequestItem, Product } from '@/types';
+import { useAppSelector } from '@redux/hooks';
+import { PurchaseRequest, Product } from '@/types';
 
 const { Option } = Select;
 
 const PurchaseRequests: React.FC = () => {
-  const { user } = useAuth();
+  const user = useAppSelector(state => state.auth.user);
   const [requests, setRequests] = useState<PurchaseRequest[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
