@@ -24,7 +24,10 @@ import { supplierService } from '@services/vendorService';
 import { Supplier } from '@/types';
 import './Suppliers.css';
 
+import { useNavigate } from 'react-router-dom';
+
 const SuppliersPage: React.FC = () => {
+  const navigate = useNavigate();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -104,7 +107,7 @@ const SuppliersPage: React.FC = () => {
       key: 'name',
       width: 200,
       render: (text: string, record: Supplier) => (
-        <a onClick={() => { window.location.href = `/suppliers/${record.id}` }}>{text}</a>
+        <a onClick={() => navigate(`/suppliers/${record.id}`)}>{text}</a>
       )
     },
     {
@@ -137,9 +140,17 @@ const SuppliersPage: React.FC = () => {
       width: 120,
       render: (_: any, record: Supplier) => (
         <Space size="small">
-          <Tooltip title="Edit">
+          <Tooltip title="View Dashboard">
             <Button
               type="primary"
+              size="small"
+              icon={<SearchOutlined />}
+              onClick={() => navigate(`/suppliers/${record.id}`)}
+            />
+          </Tooltip>
+          <Tooltip title="Edit">
+            <Button
+              type="default"
               size="small"
               icon={<EditOutlined />}
               onClick={() => showEditModal(record)}

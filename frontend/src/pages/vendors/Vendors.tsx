@@ -24,7 +24,10 @@ import { vendorService } from '@services/vendorService';
 import { Vendor } from '@/types';
 import './Vendors.css';
 
+import { useNavigate } from 'react-router-dom';
+
 const VendorsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -94,7 +97,7 @@ const VendorsPage: React.FC = () => {
       key: 'name',
       width: 180,
       render: (text: string, record: Vendor) => (
-        <a onClick={() => { window.location.href = `/vendors/${record.id}` }}>{text}</a>
+        <a onClick={() => navigate(`/vendors/${record.id}`)}>{text}</a>
       )
     },
     {
@@ -142,7 +145,7 @@ const VendorsPage: React.FC = () => {
             type="primary"
             size="small"
             icon={<SearchOutlined />}
-            onClick={() => { window.location.href = `/vendors/${record.id}` }}
+            onClick={() => navigate(`/vendors/${record.id}`)}
           />
           <Button
             type="default"
