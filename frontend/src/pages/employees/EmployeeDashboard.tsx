@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Row, Col, Spin, message, Typography, Space, Button, Descriptions, Tag, Timeline } from 'antd';
-import { ArrowLeftOutlined, UserOutlined, MailOutlined, PhoneOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, MailOutlined, PhoneOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { supabase } from '@config/supabase';
 import { Employee } from '@/types';
 import dayjs from 'dayjs';

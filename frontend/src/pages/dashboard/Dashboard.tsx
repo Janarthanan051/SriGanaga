@@ -53,6 +53,8 @@ interface DashboardStats {
   monthlyExpenses: number;
   wastagePercentage: number;
   vendorCount: number;
+  salesMonthlyRevenue: number;
+  salesTodayRevenue: number;
 }
 
 interface ChartData {
