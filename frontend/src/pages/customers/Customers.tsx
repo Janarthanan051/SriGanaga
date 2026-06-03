@@ -20,7 +20,10 @@ export interface Customer {
   status: 'active' | 'inactive' | 'blacklisted';
 }
 
+import { useNavigate } from 'react-router-dom';
+
 const Customers: React.FC = () => {
+  const navigate = useNavigate();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -110,7 +113,9 @@ const Customers: React.FC = () => {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
-      render: (text: string) => <strong>{text}</strong>,
+      render: (text: string, record: Customer) => (
+        <a onClick={() => navigate(`/customers/${record.id}`)}><strong>{text}</strong></a>
+      ),
     },
     {
       title: 'Contact',
@@ -148,9 +153,14 @@ const Customers: React.FC = () => {
       title: 'Action',
       key: 'action',
       render: (_: any, record: Customer) => (
-        <Button type="link" onClick={() => handleEditClick(record)}>
-          Edit
-        </Button>
+        <Space size="small">
+          <Button type="primary" size="small" icon={<SearchOutlined />} onClick={() => navigate(`/customers/${record.id}`)}>
+            View
+          </Button>
+          <Button type="default" size="small" onClick={() => handleEditClick(record)}>
+            Edit
+          </Button>
+        </Space>
       ),
     }
   ];

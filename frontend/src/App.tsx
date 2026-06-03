@@ -35,6 +35,7 @@ const QualityControl = React.lazy(() => import('@pages/production/qc/QualityCont
 const GoodsReceiptsPage = React.lazy(() => import('@pages/inventory/receipts/GoodsReceipts'));
 const WarehouseTransfersPage = React.lazy(() => import('@pages/inventory/transfers/WarehouseTransfers'));
 const CustomersPage = React.lazy(() => import('@pages/customers/Customers'));
+const CustomerDashboard = React.lazy(() => import('@pages/customers/CustomerDashboard'));
 const BOMPage = React.lazy(() => import('@pages/production/BillOfMaterials'));
 const SettingsPage = React.lazy(() => import('@pages/settings/Settings'));
 const TallySyncPage = React.lazy(() => import('@pages/tally/TallySync'));
@@ -236,6 +237,16 @@ const AppRoutes: React.FC = () => {
           <ProtectedRoute pageKey="customers">
             <MainLayout>
               <CustomersPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/customers/:id"
+        element={
+          <ProtectedRoute pageKey="customers">
+            <MainLayout>
+              <CustomerDashboard />
             </MainLayout>
           </ProtectedRoute>
         }
