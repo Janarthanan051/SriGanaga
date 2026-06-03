@@ -36,6 +36,7 @@ import { orderService, vendorService } from '@services/vendorService';
 import { expenseService, wastageService } from '@services/operationsService';
 import { useAppSelector } from '@redux/hooks';
 import dayjs from 'dayjs';
+import { ExportOptions } from '@components/shared/ExportOptions';
 import './Dashboard.css';
 
 type UserRole = 'admin' | 'hr_manager' | 'warehouse_manager' | 'accountant' | 'vendor_manager';
@@ -374,11 +375,20 @@ const Dashboard: React.FC = () => {
   const visibleCards = cards.filter((card) => card.visible);
 
   return (
-    <div className="dashboard">
+    <div className="dashboard" id="dashboard-content">
       <Spin spinning={loading}>
         <Card style={{ marginBottom: 24 }}>
-          <h2>{selectedRole ? roleNameMap[selectedRole] : 'Dashboard'}</h2>
-          <p>{selectedRole ? roleDescriptionMap[selectedRole] : 'Your dashboard will show role-based metrics once your assigned role is available.'}</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <h2>{selectedRole ? roleNameMap[selectedRole] : 'Enterprise Analytics Matrix'}</h2>
+              <p>{selectedRole ? roleDescriptionMap[selectedRole] : 'Your dashboard will show role-based metrics once your assigned role is available.'}</p>
+            </div>
+            <ExportOptions 
+              elementId="dashboard-content" 
+              excelData={[]} // Full data export logic can be expanded here
+              filenamePrefix="enterprise_analytics"
+            />
+          </div>
         </Card>
 
         {(!selectedRole && !loading) && (

@@ -93,6 +93,9 @@ const VendorsPage: React.FC = () => {
       dataIndex: 'name',
       key: 'name',
       width: 180,
+      render: (text: string, record: Vendor) => (
+        <a onClick={() => { window.location.href = `/vendors/${record.id}` }}>{text}</a>
+      )
     },
     {
       title: 'Contact Person',
@@ -137,6 +140,12 @@ const VendorsPage: React.FC = () => {
         <Space size="small">
           <Button
             type="primary"
+            size="small"
+            icon={<SearchOutlined />}
+            onClick={() => { window.location.href = `/vendors/${record.id}` }}
+          />
+          <Button
+            type="default"
             size="small"
             icon={<EditOutlined />}
             onClick={() => showEditModal(record)}

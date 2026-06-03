@@ -32,6 +32,7 @@ import dayjs from 'dayjs';
 import { logisticsService } from '@services/operationsService';
 import { orderService } from '@services/vendorService';
 import { Logistics, Order } from '@/types';
+import { ExportOptions } from '@components/shared/ExportOptions';
 import './Logistics.css';
 
 const { Option } = Select;
@@ -177,7 +178,18 @@ const LogisticsPage: React.FC = () => {
       title: 'Vehicle',
       dataIndex: 'vehicle_number',
       key: 'vehicle_number',
-      render: (num: string) => num || 'N/A',
+      render: (num: string, record: Logistics) => (
+        <div>
+          <span style={{ fontWeight: 500 }}>{num || 'N/A'}</span>
+          {record.vehicle_status && (
+            <div style={{ fontSize: '12px' }}>
+              <Tag color={record.vehicle_status === 'idle' ? 'default' : record.vehicle_status === 'maintenance' ? 'error' : 'processing'}>
+                {record.vehicle_status.toUpperCase()}
+              </Tag>
+            </div>
+          )}
+        </div>
+      ),
     },
     {
       title: 'Driver Details',
@@ -270,7 +282,7 @@ const LogisticsPage: React.FC = () => {
   ];
 
   return (
-    <div className="logistics-page">
+    <div className="logistics-page" id="logistics-content">
       {/* Analytics widgets */}
       <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
         <Col xs={12} sm={6}>
@@ -317,9 +329,16 @@ const LogisticsPage: React.FC = () => {
       <Card
         title={<h2>Logistics & Shipments</h2>}
         extra={
-          <Button type="primary" icon={<PlusOutlined />} onClick={showAddModal}>
-            New Shipment
-          </Button>
+          <Space>
+            <ExportOptions 
+              elementId="logistics-content" 
+              excelData={shipments}
+              filenamePrefix="logistics_shipments"
+            />
+            <Button type="primary" icon={<PlusOutlined />} onClick={showAddModal}>
+              New Shipment
+            </Button>
+          </Space>
         }
       >
         {/* Search / Filter Bar */}
@@ -438,6 +457,32 @@ const LogisticsPage: React.FC = () => {
                 label="Driver Contact Phone"
               >
                 <Input placeholder="e.g. 9876543210" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name="vehicle_status"
+                label="Vehicle Status"
+              >
+                <Select>
+                  <Option value="idle">Idle</Option>
+                  <Option value="loading">Loading</Option>
+                  <Option value="loaded">Loaded</Option>
+                  <Option value="in_transit">In Transit</Option>
+                  <Option value="delivered">Delivered</Option>
+                  <Option value="maintenance">Maintenance</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col xs={24} sm={12}>
+              <Form.Item
+                name="route_frequency"
+                label="Route Frequency (Per Week)"
+              >
+                <Input type="number" placeholder="e.g. 3" />
               </Form.Item>
             </Col>
           </Row>

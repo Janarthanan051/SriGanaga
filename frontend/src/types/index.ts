@@ -50,6 +50,8 @@ export interface Attendance {
   employee_id: string;
   date: string;
   status: 'present' | 'absent' | 'half_day' | 'leave';
+  leave_type?: 'sick' | 'casual' | 'unpaid' | 'authorized' | 'none';
+  authorized_by?: string;
   notes?: string;
   created_at: string;
   updated_at: string;
@@ -63,9 +65,12 @@ export interface Payroll {
   year: number;
   days_present: number;
   basic_salary: number;
+  allowances?: number;
+  deductions?: number;
   net_salary: number;
   payment_status: 'pending' | 'processed' | 'paid';
   payslip_url?: string;
+  generated_date?: string;
   created_at: string;
   updated_at: string;
 }
@@ -227,7 +232,12 @@ export interface Logistics {
   dispatch_date: string;
   delivery_date?: string;
   route?: string;
+  route_frequency?: number;
+  assigned_weight?: number;
+  weight_unit?: string;
   status: 'pending' | 'in_transit' | 'delivered' | 'cancelled';
+  vehicle_status?: 'idle' | 'loading' | 'loaded' | 'in_transit' | 'delivered' | 'maintenance';
+  estimated_arrival?: string;
   created_at: string;
   updated_at: string;
 }

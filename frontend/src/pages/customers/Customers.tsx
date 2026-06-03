@@ -24,6 +24,7 @@ const Customers: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form] = Form.useForm();
   const [searchText, setSearchText] = useState('');
 
@@ -48,30 +49,53 @@ const Customers: React.FC = () => {
     }
   };
 
-  const handleCreateCustomer = async (values: any) => {
+  const handleEditClick = (record: Customer) => {
+    setEditingId(record.id);
+    form.setFieldsValue(record);
+    setIsModalVisible(true);
+  };
+
+  const showAddModal = () => {
+    setEditingId(null);
+    form.resetFields();
+    setIsModalVisible(true);
+  };
+
+  const handleSaveCustomer = async (values: any) => {
     try {
-      const { error } = await supabase
-        .from('customers')
-        .insert([{
-          name: values.name,
-          contact_person: values.contact_person,
-          email: values.email,
-          phone: values.phone,
-          gst_number: values.gst_number,
-          billing_address: values.billing_address,
-          shipping_address: values.shipping_address,
-          credit_limit: values.credit_limit || 0,
-          status: values.status || 'active'
-        }]);
+      const customerData = {
+        name: values.name,
+        contact_person: values.contact_person,
+        email: values.email,
+        phone: values.phone,
+        gst_number: values.gst_number,
+        billing_address: values.billing_address,
+        shipping_address: values.shipping_address,
+        credit_limit: values.credit_limit || 0,
+        status: values.status || 'active'
+      };
 
-      if (error) throw error;
+      if (editingId) {
+        const { error } = await supabase
+          .from('customers')
+          .update(customerData)
+          .eq('id', editingId);
+        if (error) throw error;
+        message.success('Customer updated successfully');
+      } else {
+        const { error } = await supabase
+          .from('customers')
+          .insert([customerData]);
+        if (error) throw error;
+        message.success('Customer created successfully');
+      }
 
-      message.success('Customer created successfully');
       setIsModalVisible(false);
       form.resetFields();
+      setEditingId(null);
       fetchCustomers();
     } catch (err: any) {
-      message.error(err.message || 'Failed to create customer');
+      message.error(err.message || 'Failed to save customer');
     }
   };
 
@@ -123,7 +147,11 @@ const Customers: React.FC = () => {
     {
       title: 'Action',
       key: 'action',
-      render: () => <Button type="link">Edit</Button>,
+      render: (_: any, record: Customer) => (
+        <Button type="link" onClick={() => handleEditClick(record)}>
+          Edit
+        </Button>
+      ),
     }
   ];
 
@@ -131,7 +159,7 @@ const Customers: React.FC = () => {
     <div className="page-container">
       <div className="page-header">
         <h1>Customers</h1>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalVisible(true)}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={showAddModal}>
           Add Customer
         </Button>
       </div>
@@ -155,13 +183,16 @@ const Customers: React.FC = () => {
       </Card>
 
       <Modal
-        title="Add New Customer"
+        title={editingId ? "Edit Customer" : "Add New Customer"}
         open={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
+        onCancel={() => {
+          setIsModalVisible(false);
+          setEditingId(null);
+        }}
         footer={null}
         width={700}
       >
-        <Form layout="vertical" form={form} onFinish={handleCreateCustomer}>
+        <Form layout="vertical" form={form} onFinish={handleSaveCustomer}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <Form.Item name="name" label="Company / Customer Name" rules={[{ required: true }]}>
               <Input placeholder="Enter name" />
@@ -207,8 +238,13 @@ const Customers: React.FC = () => {
 
           <Form.Item style={{ marginTop: 24, textAlign: 'right' }}>
             <Space>
-              <Button onClick={() => setIsModalVisible(false)}>Cancel</Button>
-              <Button type="primary" htmlType="submit">Save Customer</Button>
+              <Button onClick={() => {
+                setIsModalVisible(false);
+                setEditingId(null);
+              }}>Cancel</Button>
+              <Button type="primary" htmlType="submit">
+                {editingId ? "Update Customer" : "Save Customer"}
+              </Button>
             </Space>
           </Form.Item>
         </Form>

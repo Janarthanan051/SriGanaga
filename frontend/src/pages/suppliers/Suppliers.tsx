@@ -102,38 +102,34 @@ const SuppliersPage: React.FC = () => {
       title: 'Supplier Name',
       dataIndex: 'name',
       key: 'name',
-      fontWeight: 'bold',
-      render: (text: string) => <strong>{text}</strong>,
+      width: 200,
+      render: (text: string, record: Supplier) => (
+        <a onClick={() => { window.location.href = `/suppliers/${record.id}` }}>{text}</a>
+      )
     },
     {
       title: 'Contact Person',
       dataIndex: 'contact_person',
       key: 'contact_person',
+      width: 150,
     },
     {
       title: 'Email',
       dataIndex: 'email',
       key: 'email',
+      width: 200,
     },
     {
       title: 'Phone',
       dataIndex: 'phone',
       key: 'phone',
+      width: 150,
     },
     {
       title: 'Materials Supplied',
       dataIndex: 'materials_supplied',
       key: 'materials_supplied',
       ellipsis: true,
-    },
-    {
-      title: 'City / State',
-      key: 'location',
-      render: (_: any, record: Supplier) => {
-        const city = record.city || '';
-        const state = record.state || '';
-        return city && state ? `${city}, ${state}` : city || state || 'N/A';
-      },
     },
     {
       title: 'Actions',

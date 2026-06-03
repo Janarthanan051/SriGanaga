@@ -19,7 +19,9 @@ const StockInwardPage = React.lazy(() => import('@pages/inventory/StockInward'))
 const StockOutwardPage = React.lazy(() => import('@pages/inventory/StockOutward'));
 const OrdersPage = React.lazy(() => import('@pages/orders/Orders'));
 const VendorsPage = React.lazy(() => import('@pages/vendors/Vendors'));
+const VendorDashboard = React.lazy(() => import('@pages/vendors/VendorDashboard'));
 const SuppliersPage = React.lazy(() => import('@pages/suppliers/Suppliers'));
+const SupplierDashboard = React.lazy(() => import('@pages/suppliers/SupplierDashboard'));
 const AttendancePage = React.lazy(() => import('@pages/attendance/Attendance'));
 const PayrollPage = React.lazy(() => import('@pages/payroll/Payroll'));
 const ExpensesPage = React.lazy(() => import('@pages/expenses/Expenses'));
@@ -196,6 +198,16 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/vendors/:id"
+        element={
+          <ProtectedRoute pageKey="vendors">
+            <MainLayout>
+              <VendorDashboard />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/suppliers"
@@ -203,6 +215,16 @@ const AppRoutes: React.FC = () => {
           <ProtectedRoute pageKey="suppliers">
             <MainLayout>
               <SuppliersPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/suppliers/:id"
+        element={
+          <ProtectedRoute pageKey="suppliers">
+            <MainLayout>
+              <SupplierDashboard />
             </MainLayout>
           </ProtectedRoute>
         }

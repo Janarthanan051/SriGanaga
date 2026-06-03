@@ -135,6 +135,13 @@ export const supplierService = {
     return { data: data as Supplier[], total: count || 0 };
   },
 
+  // Get single supplier
+  async getSupplier(id: string) {
+    const { data, error } = await supabase.from('suppliers').select('*').eq('id', id).single();
+    if (error) throw error;
+    return data as Supplier;
+  },
+
   // Create supplier
   async createSupplier(supplier: Omit<Supplier, 'id' | 'created_at' | 'updated_at'>) {
     const { data, error } = await supabase.from('suppliers').insert([supplier]).select().single();

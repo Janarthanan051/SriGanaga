@@ -131,3 +131,37 @@ export const stockService = {
     return totalInward - totalOutward - totalWastage;
   },
 };
+
+export const grnService = {
+  async getGoodsReceipts(page = 1, limit = 10, filters?: Record<string, any>) {
+    let query = supabase.from('goods_receipts').select('*, purchase_orders(*)', { count: 'exact' });
+
+    if (filters && filters.search) {
+      query = query.ilike('grn_number', `%${filters.search}%`);
+    }
+
+    const from = (page - 1) * limit;
+    const { data, count, error } = await query.range(from, from + limit - 1).order('receipt_date', { ascending: false });
+
+    if (error) throw error;
+    return { data: data as any[], total: count || 0 };
+  }
+};
+
+export const transferService = {
+  async getWarehouseTransfers(page = 1, limit = 10, filters?: Record<string, any>) {
+    let query = supabase.from('warehouse_transfers').select('*', { count: 'exact' });
+
+    if (filters && filters.search) {
+      query = query.ilike('transfer_number', `%${filters.search}%`);
+    }
+
+    const from = (page - 1) * limit;
+    const { data, count, error } = await query.range(from, from + limit - 1).order('transfer_date', { ascending: false });
+
+    if (error) throw error;
+    return { data: data as any[], total: count || 0 };
+  }
+};
+
+

@@ -22,6 +22,7 @@ import dayjs from 'dayjs';
 import { payrollService } from '@services/hrService';
 import { employeeService } from '@services/hrService';
 import { Payroll, Employee } from '@/types';
+import { ExportOptions } from '@components/shared/ExportOptions';
 import './Payroll.css';
 
 const PayrollPage: React.FC = () => {
@@ -101,13 +102,25 @@ const PayrollPage: React.FC = () => {
       title: 'Basic Salary',
       dataIndex: 'basic_salary',
       key: 'basic_salary',
-      render: (salary: number) => `₹${salary.toLocaleString()}`,
+      render: (salary: number) => `₹${Number(salary || 0).toLocaleString()}`,
+    },
+    {
+      title: 'Allowances',
+      dataIndex: 'allowances',
+      key: 'allowances',
+      render: (amount: number) => <span style={{ color: '#52c41a' }}>+ ₹{Number(amount || 0).toLocaleString()}</span>,
+    },
+    {
+      title: 'Deductions',
+      dataIndex: 'deductions',
+      key: 'deductions',
+      render: (amount: number) => <span style={{ color: '#ff4d4f' }}>- ₹{Number(amount || 0).toLocaleString()}</span>,
     },
     {
       title: 'Net Salary',
       dataIndex: 'net_salary',
       key: 'net_salary',
-      render: (salary: number) => `₹${salary.toLocaleString()}`,
+      render: (salary: number) => <strong>₹{Number(salary || 0).toLocaleString()}</strong>,
     },
     {
       title: 'Status',
@@ -151,11 +164,16 @@ const PayrollPage: React.FC = () => {
   const totalSalaries = payroll.reduce((sum, p) => sum + p.net_salary, 0);
 
   return (
-    <div className="payroll-page">
+    <div className="payroll-page" id="payroll-content">
       <Card
         title={<h2>Payroll Management</h2>}
         extra={
           <Space>
+            <ExportOptions 
+              elementId="payroll-content" 
+              excelData={payroll}
+              filenamePrefix={`payroll_${selectedMonth}`}
+            />
             <DatePicker
               picker="month"
               value={dayjs(selectedMonth)}

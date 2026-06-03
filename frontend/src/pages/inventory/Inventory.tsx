@@ -24,6 +24,7 @@ import {
 } from '@ant-design/icons';
 import { productService } from '@services/inventoryService';
 import { Product } from '@/types';
+import { ExportOptions } from '@components/shared/ExportOptions';
 import './Inventory.css';
 
 const InventoryPage: React.FC = () => {
@@ -213,9 +214,16 @@ const InventoryPage: React.FC = () => {
       <Card
         title={<h2>Inventory Management</h2>}
         extra={
-          <Button type="primary" icon={<PlusOutlined />} onClick={showAddModal}>
-            Add Product
-          </Button>
+          <Space>
+            <ExportOptions 
+              elementId="inventory-page-content" 
+              excelData={products}
+              filenamePrefix="inventory_stock"
+            />
+            <Button type="primary" icon={<PlusOutlined />} onClick={showAddModal}>
+              Add Product
+            </Button>
+          </Space>
         }
       >
         <Row gutter={[16, 16]} style={{ marginBottom: '16px' }}>

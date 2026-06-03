@@ -219,3 +219,53 @@ export const tallyService = {
     return updatedEntry;
   }
 };
+
+export const productionService = {
+  async getProductionOrders(page = 1, limit = 10, filters?: Record<string, any>) {
+    let query = supabase.from('production_orders').select('*, bill_of_materials(*)', { count: 'exact' });
+
+    if (filters && filters.search) {
+      query = query.ilike('order_number', `%${filters.search}%`);
+    }
+
+    const from = (page - 1) * limit;
+    const { data, count, error } = await query.range(from, from + limit - 1).order('planned_date', { ascending: false });
+
+    if (error) throw error;
+    return { data: data as any[], total: count || 0 };
+  }
+};
+
+export const batchService = {
+  async getBatches(page = 1, limit = 10, filters?: Record<string, any>) {
+    let query = supabase.from('batches').select('*, products(name)', { count: 'exact' });
+
+    if (filters && filters.search) {
+      query = query.ilike('batch_code', `%${filters.search}%`);
+    }
+
+    const from = (page - 1) * limit;
+    const { data, count, error } = await query.range(from, from + limit - 1).order('manufacturing_date', { ascending: false });
+
+    if (error) throw error;
+    return { data: data as any[], total: count || 0 };
+  }
+};
+
+export const qcService = {
+  async getReports(page = 1, limit = 10, filters?: Record<string, any>) {
+    let query = supabase.from('qc_reports').select('*, batches(batch_code)', { count: 'exact' });
+
+    if (filters && filters.search) {
+      query = query.or(`report_number.ilike.%${filters.search}%,batch_id.eq.${filters.search}`);
+    }
+
+    const from = (page - 1) * limit;
+    const { data, count, error } = await query.range(from, from + limit - 1).order('inspection_date', { ascending: false });
+
+    if (error) throw error;
+    return { data: data as any[], total: count || 0 };
+  }
+};
+
+

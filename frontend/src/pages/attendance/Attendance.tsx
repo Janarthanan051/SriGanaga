@@ -21,6 +21,7 @@ import {
 import dayjs from 'dayjs';
 import { attendanceService, employeeService } from '@services/hrService';
 import { Attendance, Employee } from '@/types';
+import { ExportOptions } from '@components/shared/ExportOptions';
 import './Attendance.css';
 
 const AttendancePage: React.FC = () => {
@@ -165,11 +166,16 @@ const AttendancePage: React.FC = () => {
   }));
 
   return (
-    <div className="attendance-page">
+    <div className="attendance-page" id="attendance-content">
       <Card
         title={<h2>Attendance Management</h2>}
         extra={
           <Space>
+            <ExportOptions 
+              elementId="attendance-content" 
+              excelData={attendance}
+              filenamePrefix={`attendance_${selectedMonth}`}
+            />
             <DatePicker
               picker="month"
               value={dayjs(selectedMonth)}
@@ -234,6 +240,30 @@ const AttendancePage: React.FC = () => {
                 { label: 'Leave', value: 'leave' },
               ]}
             />
+          </Form.Item>
+
+          <Form.Item
+            noStyle
+            shouldUpdate={(prevValues, currentValues) => prevValues.status !== currentValues.status}
+          >
+            {({ getFieldValue }) =>
+              getFieldValue('status') === 'leave' ? (
+                <Form.Item
+                  name="leave_type"
+                  label="Leave Type"
+                  rules={[{ required: true }]}
+                >
+                  <Select
+                    options={[
+                      { label: 'Sick Leave', value: 'sick' },
+                      { label: 'Casual Leave', value: 'casual' },
+                      { label: 'Authorized Leave', value: 'authorized' },
+                      { label: 'Unpaid Leave', value: 'unpaid' },
+                    ]}
+                  />
+                </Form.Item>
+              ) : null
+            }
           </Form.Item>
 
           <Form.Item

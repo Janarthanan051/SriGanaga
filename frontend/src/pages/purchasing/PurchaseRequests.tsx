@@ -4,6 +4,7 @@ import { PlusOutlined, SearchOutlined, MinusCircleOutlined } from '@ant-design/i
 import { supabase } from '@config/supabase';
 import { useAppSelector } from '@redux/hooks';
 import { PurchaseRequest, Product } from '@/types';
+import { ExportOptions } from '@components/shared/ExportOptions';
 
 const { Option } = Select;
 
@@ -141,11 +142,18 @@ const PurchaseRequests: React.FC = () => {
 
   return (
     <div className="page-container">
-      <div className="page-header">
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h1>Purchase Requests</h1>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalVisible(true)}>
-          New Request
-        </Button>
+        <Space>
+          <ExportOptions 
+            elementId="purchase-requests-content" 
+            excelData={filteredRequests}
+            filenamePrefix="purchase_requests"
+          />
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalVisible(true)}>
+            New Request
+          </Button>
+        </Space>
       </div>
 
       <Card>
