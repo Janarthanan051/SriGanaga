@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Row, Col, Statistic, Spin, message, Typography, Space, Button, Descriptions, Tag } from 'antd';
-import { ArrowLeftOutlined, UserOutlined, DollarOutlined, CreditCardOutlined } from '@ant-design/icons';
+import { Card, Row, Col, Statistic, Spin, message, Typography, Space, Button, Descriptions, Tag, Table } from 'antd';
+import { ArrowLeftOutlined, ShoppingCartOutlined, DollarOutlined, CreditCardOutlined } from '@ant-design/icons';
 import { supabase } from '@config/supabase';
 import { Customer } from './Customers';
+import { salesService, SalesOrder } from '@services/salesService';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -13,6 +14,7 @@ const CustomerDashboard: React.FC = () => {
   const navigate = useNavigate();
   
   const [customer, setCustomer] = useState<Customer | null>(null);
+  const [salesOrders, setSalesOrders] = useState<SalesOrder[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,16 +27,20 @@ const CustomerDashboard: React.FC = () => {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
+      const { data: customerData, error: customerError } = await supabase
         .from('customers')
         .select('*')
         .eq('id', customerId)
         .single();
         
-      if (error) throw error;
-      if (!data) throw new Error("Customer not found");
+      if (customerError) throw customerError;
+      if (!customerData) throw new Error("Customer not found");
       
-      setCustomer(data);
+      setCustomer(customerData);
+
+      // Fetch Sales Orders
+      const orders = await salesService.getSalesOrdersByCustomer(customerId);
+      setSalesOrders(orders);
       
     } catch (error: any) {
       message.error(error.message || 'Failed to load customer details');
@@ -43,6 +49,54 @@ const CustomerDashboard: React.FC = () => {
       setLoading(false);
     }
   };
+
+  const orderColumns = [
+    {
+      title: 'Order Number',
+      dataIndex: 'order_number',
+      key: 'order_number',
+    },
+    {
+      title: 'Order Date',
+      dataIndex: 'order_date',
+      key: 'order_date',
+      render: (date: string) => dayjs(date).format('DD MMM YYYY'),
+    },
+    {
+      title: 'Products Purchased',
+      key: 'products',
+      render: (_: any, record: SalesOrder) => {
+        return (
+          <ul style={{ paddingLeft: 20, margin: 0 }}>
+            {record.items?.map(item => (
+              <li key={item.id}>
+                {item.products?.name} ({item.quantity} qty) - ₹{item.total_price.toLocaleString()}
+              </li>
+            ))}
+          </ul>
+        );
+      }
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: string) => {
+        let color = 'default';
+        if (status === 'delivered') color = 'success';
+        if (status === 'processing') color = 'processing';
+        if (status === 'shipped') color = 'purple';
+        if (status === 'cancelled') color = 'error';
+        return <Tag color={color}>{status.toUpperCase()}</Tag>;
+      }
+    },
+    {
+      title: 'Total Amount',
+      dataIndex: 'total_amount',
+      key: 'total_amount',
+      render: (amount: number) => `₹${Number(amount).toLocaleString()}`,
+    }
+  ];
 
   if (loading) {
     return <div style={{ textAlign: 'center', padding: '50px' }}><Spin size="large" /></div>;
@@ -59,6 +113,8 @@ const CustomerDashboard: React.FC = () => {
   const creditUtilization = customer.credit_limit > 0 
     ? (customer.outstanding_balance / customer.credit_limit) * 100 
     : 0;
+
+  const totalSpent = salesOrders.reduce((sum, order) => sum + Number(order.total_amount), 0);
 
   return (
     <div className="customer-dashboard" id="customer-dashboard-content">
@@ -78,7 +134,17 @@ const CustomerDashboard: React.FC = () => {
       </Row>
 
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={8}>
+        <Col xs={24} sm={6}>
+          <Card bordered={false}>
+            <Statistic 
+              title="Total Spent" 
+              value={totalSpent} 
+              prefix={<ShoppingCartOutlined />} 
+              precision={2}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={6}>
           <Card bordered={false}>
             <Statistic 
               title="Outstanding Balance" 
@@ -89,7 +155,7 @@ const CustomerDashboard: React.FC = () => {
             />
           </Card>
         </Col>
-        <Col xs={24} sm={8}>
+        <Col xs={24} sm={6}>
           <Card bordered={false}>
             <Statistic 
               title="Credit Limit" 
@@ -99,7 +165,7 @@ const CustomerDashboard: React.FC = () => {
             />
           </Card>
         </Col>
-        <Col xs={24} sm={8}>
+        <Col xs={24} sm={6}>
           <Card bordered={false}>
             <Statistic 
               title="Credit Utilization" 
@@ -112,13 +178,22 @@ const CustomerDashboard: React.FC = () => {
         </Col>
       </Row>
 
-      <Card title="Customer Details" bordered={false}>
+      <Card title="Customer Details" bordered={false} style={{ marginBottom: 24 }}>
         <Descriptions bordered column={{ xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }}>
           <Descriptions.Item label="Contact Person">{customer.contact_person || 'N/A'}</Descriptions.Item>
           <Descriptions.Item label="GST Number">{customer.gst_number || 'N/A'}</Descriptions.Item>
           <Descriptions.Item label="Billing Address">{customer.billing_address || 'N/A'}</Descriptions.Item>
           <Descriptions.Item label="Shipping Address">{customer.shipping_address || 'N/A'}</Descriptions.Item>
         </Descriptions>
+      </Card>
+
+      <Card title="Order History & Purchased Products" bordered={false}>
+        <Table 
+          columns={orderColumns} 
+          dataSource={salesOrders} 
+          rowKey="id"
+          pagination={{ pageSize: 10 }}
+        />
       </Card>
     </div>
   );
