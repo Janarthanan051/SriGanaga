@@ -112,9 +112,9 @@ async function seedData() {
       const email = `worker${i}@sriganga.com`;
       const phone = `99999999${i.toString().padStart(2, '0')}`;
       const res = await client.query(`
-        INSERT INTO public.employees (employee_id, first_name, last_name, email, phone, department, position, salary, status)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'active') RETURNING id`,
-        [`EMP-${i.toString().padStart(3, '0')}`, `Worker`, `${i}`, email, phone, i % 3 === 0 ? 'Logistics' : 'Production', 'Staff', 15000 + (Math.random() * 10000)]
+        INSERT INTO public.employees (employee_id, first_name, last_name, email, phone, joining_date, department, position, salary, status)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'active') RETURNING id`,
+        [`EMP-${i.toString().padStart(3, '0')}`, `Worker`, `${i}`, email, phone, new Date().toISOString().split('T')[0], i % 3 === 0 ? 'Logistics' : 'Production', 'Staff', 15000 + (Math.random() * 10000)]
       );
       employeeIds.push(res.rows[0].id);
     }

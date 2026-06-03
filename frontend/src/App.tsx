@@ -49,6 +49,8 @@ const StoreLayout = React.lazy(() => import('@pages/storefront/StoreLayout'));
 const Storefront = React.lazy(() => import('@pages/storefront/Storefront'));
 const Checkout = React.lazy(() => import('@pages/storefront/Checkout'));
 const OrderTracking = React.lazy(() => import('@pages/storefront/OrderTracking'));
+const CustomerLogin = React.lazy(() => import('@pages/storefront/CustomerLogin'));
+const UserDashboard = React.lazy(() => import('@pages/storefront/UserDashboard'));
 
 // Suspense fallback
 const PageLoader = () => (
@@ -80,6 +82,8 @@ const AppRoutes: React.FC = () => {
         <Route index element={<Storefront />} />
         <Route path="checkout" element={<Checkout />} />
         <Route path="track" element={<OrderTracking />} />
+        <Route path="login" element={<CustomerLogin />} />
+        <Route path="dashboard" element={<UserDashboard />} />
       </Route>
 
       {/* Protected Routes */}

@@ -174,7 +174,7 @@ const Dashboard: React.FC = () => {
         const salesAnalytics =
           isAdmin || isSales || role === 'owner' || role === 'super_admin'
             ? await import('@services/salesService').then(m => m.salesService.getSalesAnalytics())
-            : { monthlyRevenue: 0, todayRevenue: 0 };
+            : { monthlyRevenue: 0, todayRevenue: 0, revenueTrend: [] };
 
         const categoryData = {} as Record<string, number>;
         products.forEach((product) => {

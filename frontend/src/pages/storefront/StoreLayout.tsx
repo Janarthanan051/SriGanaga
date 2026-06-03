@@ -30,7 +30,8 @@ const StoreLayout: React.FC = () => {
           style={{ flex: 1, justifyContent: 'center', borderBottom: 'none' }}
           items={[
             { key: '/store', label: 'Menu', onClick: () => navigate('/store') },
-            { key: '/store/track', label: 'Track Order', onClick: () => navigate('/store/track') }
+            { key: '/store/track', label: 'Track Order', onClick: () => navigate('/store/track') },
+            { key: '/store/dashboard', label: 'My Dashboard', onClick: () => navigate('/store/dashboard') }
           ]}
         />
         
