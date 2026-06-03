@@ -48,6 +48,7 @@ const PendingApprovalPage = React.lazy(() => import('@pages/auth/PendingApproval
 const StoreLayout = React.lazy(() => import('@pages/storefront/StoreLayout'));
 const Storefront = React.lazy(() => import('@pages/storefront/Storefront'));
 const Checkout = React.lazy(() => import('@pages/storefront/Checkout'));
+const OrderTracking = React.lazy(() => import('@pages/storefront/OrderTracking'));
 
 // Suspense fallback
 const PageLoader = () => (
@@ -78,6 +79,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/store" element={<StoreLayout />}>
         <Route index element={<Storefront />} />
         <Route path="checkout" element={<Checkout />} />
+        <Route path="track" element={<OrderTracking />} />
       </Route>
 
       {/* Protected Routes */}

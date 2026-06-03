@@ -29,7 +29,8 @@ const StoreLayout: React.FC = () => {
           selectedKeys={[location.pathname]} 
           style={{ flex: 1, justifyContent: 'center', borderBottom: 'none' }}
           items={[
-            { key: '/store', label: 'Menu', onClick: () => navigate('/store') }
+            { key: '/store', label: 'Menu', onClick: () => navigate('/store') },
+            { key: '/store/track', label: 'Track Order', onClick: () => navigate('/store/track') }
           ]}
         />
         

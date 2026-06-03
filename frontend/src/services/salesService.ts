@@ -65,6 +65,13 @@ export const salesService = {
 
     let monthlyRevenue = 0;
     let todayRevenue = 0;
+    
+    // Create a 7-day trend map
+    const trendMap: Record<string, number> = {};
+    for (let i = 6; i >= 0; i--) {
+      const d = dayjs().subtract(i, 'day').format('YYYY-MM-DD');
+      trendMap[d] = 0;
+    }
 
     data?.forEach(order => {
       const amt = Number(order.total_amount) || 0;
@@ -73,11 +80,21 @@ export const salesService = {
       if (order.order_date === today) {
         todayRevenue += amt;
       }
+      
+      if (trendMap[order.order_date] !== undefined) {
+        trendMap[order.order_date] += amt;
+      }
     });
+
+    const revenueTrend = Object.keys(trendMap).map(date => ({
+      name: dayjs(date).format('DD MMM'),
+      revenue: trendMap[date]
+    }));
 
     return {
       monthlyRevenue,
-      todayRevenue
+      todayRevenue,
+      revenueTrend
     };
   }
 };

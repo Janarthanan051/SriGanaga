@@ -55,6 +55,7 @@ interface DashboardStats {
   vendorCount: number;
   salesMonthlyRevenue: number;
   salesTodayRevenue: number;
+  revenueTrend: Array<{name: string, revenue: number}>;
 }
 
 interface ChartData {
@@ -91,6 +92,7 @@ const Dashboard: React.FC = () => {
     vendorCount: 0,
     salesMonthlyRevenue: 0,
     salesTodayRevenue: 0,
+    revenueTrend: []
   });
 
   const [loading, setLoading] = useState(true);
@@ -215,6 +217,7 @@ const Dashboard: React.FC = () => {
           vendorCount,
           salesMonthlyRevenue: salesAnalytics.monthlyRevenue,
           salesTodayRevenue: salesAnalytics.todayRevenue,
+          revenueTrend: salesAnalytics.revenueTrend || [],
         });
 
         const trendMonths = Array.from({ length: 6 }, (_, i) => {
@@ -458,7 +461,31 @@ const Dashboard: React.FC = () => {
           ))}
         </Row>
 
-        {/* Charts Row */}
+        {/* Revenue Trend Chart (Sales & Admin) */}
+      {(role === 'admin' || role === 'super_admin' || role === 'owner' || role === 'sales_executive') && (
+        <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+          <Col xs={24}>
+            <Card title="7-Day Revenue Trend" hoverable>
+              {stats.revenueTrend && stats.revenueTrend.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={stats.revenueTrend}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip formatter={(value: number) => `₹${value.toLocaleString()}`} />
+                    <Legend />
+                    <Line type="monotone" dataKey="revenue" name="Revenue (₹)" stroke="#52c41a" activeDot={{ r: 8 }} strokeWidth={3} />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <Empty description="No revenue data available" />
+              )}
+            </Card>
+          </Col>
+        </Row>
+      )}
+
+      {/* Main Charts */}
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={12}>
             <Card

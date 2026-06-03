@@ -7,6 +7,8 @@ import { Customer } from './Customers';
 import { salesService, SalesOrder } from '@services/salesService';
 import dayjs from 'dayjs';
 
+import { generateInvoicePDF } from '@/utils/invoiceGenerator';
+
 const { Title, Text } = Typography;
 
 const CustomerDashboard: React.FC = () => {
@@ -95,6 +97,19 @@ const CustomerDashboard: React.FC = () => {
       dataIndex: 'total_amount',
       key: 'total_amount',
       render: (amount: number) => `₹${Number(amount).toLocaleString()}`,
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_: any, record: SalesOrder) => (
+        <Button 
+          type="primary" 
+          size="small" 
+          onClick={() => generateInvoicePDF(record, customer)}
+        >
+          Download Invoice
+        </Button>
+      ),
     }
   ];
 
