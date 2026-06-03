@@ -6,7 +6,8 @@ import {
   DashboardOutlined, 
   ApiOutlined, 
   DashboardFilled,
-  HeartOutlined
+  HeartOutlined,
+  ShopOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '@redux/hooks';
@@ -62,17 +63,17 @@ const LandingPage: React.FC = () => {
       <section className="hero-section">
         <Row gutter={[32, 32]} align="middle">
           <Col xs={24} lg={12} className="hero-text">
-            <Badge count="ERP Solution v1.0" className="hero-badge" style={{ backgroundColor: '#e0e7ff', color: '#4f46e5', fontWeight: 600 }} />
-            <h1>Internal Operations & Enterprise Resource Planning</h1>
+            <Badge count="ERP Solution & Public Storefront v1.0" className="hero-badge" style={{ backgroundColor: '#e0e7ff', color: '#4f46e5', fontWeight: 600 }} />
+            <h1>Premium Food Products & Internal ERP Operations</h1>
             <p>
-              Automating raw material inward, flour milling inventory balances, employee payroll workflows, logistics tracking, and vendor ledgers under a single secure interface.
+              Welcome to Sri Ganga Food Products! Order our fresh sweets and snacks directly online, or sign in to our secure ERP portal to manage manufacturing and logistics operations.
             </p>
             <Space size="middle">
-              <Button type="primary" size="large" icon={<ArrowRightOutlined />} onClick={() => navigate('/login')}>
-                Sign In to Portal
+              <Button type="primary" size="large" icon={<ShopOutlined />} onClick={() => navigate('/store')} style={{ background: '#52c41a', borderColor: '#52c41a' }}>
+                Order Food Online
               </Button>
-              <Button size="large" onClick={() => navigate('/signup')}>
-                Register Manager Account
+              <Button size="large" icon={<ArrowRightOutlined />} onClick={() => navigate('/login')}>
+                Employee Portal Login
               </Button>
             </Space>
           </Col>
