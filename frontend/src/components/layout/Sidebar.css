@@ -1,0 +1,19 @@
+.sidebar-content {
+  padding: 16px;
+}
+
+.sidebar-logo {
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.sidebar-logo h2 {
+  margin: 0;
+  font-size: 20px;
+}

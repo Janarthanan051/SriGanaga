@@ -1,0 +1,115 @@
+.tally-sync-container {
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tally-header-section {
+  margin-bottom: 24px;
+}
+
+.tally-stats-row {
+  margin-bottom: 24px;
+}
+
+.tally-stat-card .ant-card-body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+}
+
+.tally-stat-icon-wrapper {
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.blue-icon {
+  background-color: #e6f7ff;
+}
+
+.green-icon {
+  background-color: #f6ffed;
+}
+
+.orange-icon {
+  background-color: #fff7e6;
+}
+
+.purple-icon {
+  background-color: #f9f0ff;
+}
+
+.tally-stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.tally-stat-label {
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.tally-action-card {
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
+  background-color: #ffffff;
+}
+
+.tally-action-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tally-action-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.red-avatar {
+  background-color: #fff1f0;
+  color: #ff4d4f;
+}
+
+.orange-avatar {
+  background-color: #fff7e6;
+  color: #fa8c16;
+}
+
+.green-avatar {
+  background-color: #f6ffed;
+  color: #52c41a;
+}
+
+.card-hover-effect {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+}
+
+.tally-logs-title-bar {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.tally-logs-section .ant-card {
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
+}

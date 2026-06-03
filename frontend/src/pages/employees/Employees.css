@@ -1,0 +1,7 @@
+.employees-page {
+  width: 100%;
+}
+
+.employees-page :global(.ant-table) {
+  font-size: 13px;
+}
