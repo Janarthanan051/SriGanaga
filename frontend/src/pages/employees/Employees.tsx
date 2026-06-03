@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Table,
   Button,
@@ -34,6 +35,7 @@ const EmployeesPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const navigate = useNavigate();
   const [form] = Form.useForm();
   const [searchTerm, setSearchTerm] = useState('');
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
@@ -127,7 +129,11 @@ const EmployeesPage: React.FC = () => {
       title: 'Name',
       dataIndex: 'first_name',
       key: 'name',
-      render: (_: string, record: Employee) => `${record.first_name} ${record.last_name}`,
+      render: (_: string, record: Employee) => (
+        <a onClick={() => navigate(`/employees/${record.id}`)}>
+          <strong>{record.first_name} {record.last_name}</strong>
+        </a>
+      ),
       width: 150,
     },
     {

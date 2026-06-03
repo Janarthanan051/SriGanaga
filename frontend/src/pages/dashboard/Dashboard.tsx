@@ -87,6 +87,8 @@ const Dashboard: React.FC = () => {
     monthlyExpenses: 0,
     wastagePercentage: 0,
     vendorCount: 0,
+    salesMonthlyRevenue: 0,
+    salesTodayRevenue: 0,
   });
 
   const [loading, setLoading] = useState(true);
@@ -164,6 +166,12 @@ const Dashboard: React.FC = () => {
         const wastageQuantity = (wastageResult.data || []).reduce((sum, item) => sum + (item.quantity || 0), 0);
         const wastagePercentage = currentStock > 0 ? Number(((wastageQuantity / currentStock) * 100).toFixed(1)) : 0;
 
+        const isSales = role === 'sales_executive';
+        const salesAnalytics =
+          isAdmin || isSales || role === 'owner' || role === 'super_admin'
+            ? await import('@services/salesService').then(m => m.salesService.getSalesAnalytics())
+            : { monthlyRevenue: 0, todayRevenue: 0 };
+
         const categoryData = {} as Record<string, number>;
         products.forEach((product) => {
           const categoryName = product.category || 'Uncategorized';
@@ -203,6 +211,8 @@ const Dashboard: React.FC = () => {
           monthlyExpenses,
           wastagePercentage,
           vendorCount,
+          salesMonthlyRevenue: salesAnalytics.monthlyRevenue,
+          salesTodayRevenue: salesAnalytics.todayRevenue,
         });
 
         const trendMonths = Array.from({ length: 6 }, (_, i) => {
@@ -267,21 +277,25 @@ const Dashboard: React.FC = () => {
     </Card>
   );
 
-  const roleNameMap: Record<UserRole | 'undefined', string> = {
+  const roleNameMap: Record<UserRole | 'employee' | 'logistics_manager' | 'undefined', string> = {
     admin: 'Administrator',
     hr_manager: 'HR Manager',
     warehouse_manager: 'Warehouse Manager',
     accountant: 'Accountant',
     vendor_manager: 'Vendor Manager',
+    employee: 'Employee',
+    logistics_manager: 'Logistics Manager',
     undefined: 'Team Member',
   };
 
-  const roleDescriptionMap: Record<UserRole | 'undefined', string> = {
+  const roleDescriptionMap: Record<UserRole | 'employee' | 'logistics_manager' | 'undefined', string> = {
     admin: 'Full ERP access with company-wide analytics and management controls.',
     hr_manager: 'HR dashboard with employee headcount, payroll tracking, and attendance summaries.',
     warehouse_manager: 'Warehouse controls for inventory, stock movement, and order readiness.',
     accountant: 'Finance dashboard focused on expenses, payroll, and reporting insights.',
     vendor_manager: 'Supplier and purchase order insights for vendors and procurement.',
+    employee: 'General employee dashboard for self-service and overview.',
+    logistics_manager: 'Logistics tracking, stock dispatching, and inventory movements.',
     undefined: 'Your account is logged in, but no business role is assigned yet.',
   };
 
@@ -369,6 +383,20 @@ const Dashboard: React.FC = () => {
       icon: <ShoppingCartOutlined />,
       color: '#2563eb',
       visible: !selectedRole || ['admin', 'vendor_manager'].includes(selectedRole),
+    },
+    {
+      title: 'Sales Revenue (MTD)',
+      value: `₹${stats.salesMonthlyRevenue.toLocaleString()}`,
+      icon: <DollarOutlined />,
+      color: '#10b981',
+      visible: !selectedRole || ['admin', 'owner', 'sales_executive'].includes(selectedRole),
+    },
+    {
+      title: "Today's Sales Revenue",
+      value: `₹${stats.salesTodayRevenue.toLocaleString()}`,
+      icon: <DollarOutlined />,
+      color: '#4f46e5',
+      visible: !selectedRole || ['admin', 'owner', 'sales_executive'].includes(selectedRole),
     },
   ];
 

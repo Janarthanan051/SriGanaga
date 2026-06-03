@@ -1,4 +1,5 @@
 import { supabase } from '@config/supabase';
+import dayjs from 'dayjs';
 
 export interface SalesOrder {
   id: string;
@@ -45,5 +46,38 @@ export const salesService = {
 
     if (error) throw error;
     return data as SalesOrder[];
+  },
+
+  // Get Analytics for Dispatched Revenue (Shipped or Delivered)
+  async getSalesAnalytics() {
+    const today = dayjs().format('YYYY-MM-DD');
+    const startOfMonth = dayjs().startOf('month').format('YYYY-MM-DD');
+    const endOfMonth = dayjs().endOf('month').format('YYYY-MM-DD');
+
+    const { data, error } = await supabase
+      .from('sales_orders')
+      .select('total_amount, order_date, status')
+      .in('status', ['shipped', 'delivered'])
+      .gte('order_date', startOfMonth)
+      .lte('order_date', endOfMonth);
+
+    if (error) throw error;
+
+    let monthlyRevenue = 0;
+    let todayRevenue = 0;
+
+    data?.forEach(order => {
+      const amt = Number(order.total_amount) || 0;
+      monthlyRevenue += amt;
+      
+      if (order.order_date === today) {
+        todayRevenue += amt;
+      }
+    });
+
+    return {
+      monthlyRevenue,
+      todayRevenue
+    };
   }
 };

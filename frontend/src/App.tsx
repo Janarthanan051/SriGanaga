@@ -14,6 +14,7 @@ import SignUpPage from '@pages/auth/SignUpPage';
 // Lazy-loaded pages (code-split per route)
 const Dashboard = React.lazy(() => import('@pages/dashboard/Dashboard'));
 const EmployeesPage = React.lazy(() => import('@pages/employees/Employees'));
+const EmployeeDashboard = React.lazy(() => import('@pages/employees/EmployeeDashboard'));
 const InventoryPage = React.lazy(() => import('@pages/inventory/Inventory'));
 const StockInwardPage = React.lazy(() => import('@pages/inventory/StockInward'));
 const StockOutwardPage = React.lazy(() => import('@pages/inventory/StockOutward'));
@@ -85,6 +86,16 @@ const AppRoutes: React.FC = () => {
           <ProtectedRoute pageKey="employees">
             <MainLayout>
               <EmployeesPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/employees/:id"
+        element={
+          <ProtectedRoute pageKey="employees">
+            <MainLayout>
+              <EmployeeDashboard />
             </MainLayout>
           </ProtectedRoute>
         }

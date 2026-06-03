@@ -95,4 +95,6 @@ export const PAGE_ACCESS: Record<string, string[]> = {
   ],
   accountant: ['dashboard', 'expenses', 'reports', 'payroll', 'tally-sync', 'orders'],
   vendor_manager: ['dashboard', 'vendors', 'suppliers', 'orders'],
+  employee: ['dashboard', 'employees'], // Employees can only see dashboard and employee profiles
+  logistics_manager: ['dashboard', 'logistics', 'orders', 'warehouse-transfers', 'stock-inward', 'stock-outward', 'wastage'],
 };
