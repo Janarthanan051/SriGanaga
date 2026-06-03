@@ -3,7 +3,6 @@ import { Typography, Table, Tag, Button, Modal, Steps, Alert, Card, Row, Col } f
 import { LogoutOutlined, EyeOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@config/supabase';
-import './Storefront.css';
 
 const { Title, Text } = Typography;
 

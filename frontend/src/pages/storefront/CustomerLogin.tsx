@@ -3,7 +3,6 @@ import { Typography, Input, Button, Card, message } from 'antd';
 import { PhoneOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@config/supabase';
-import './Storefront.css';
 
 const { Title, Text } = Typography;
 

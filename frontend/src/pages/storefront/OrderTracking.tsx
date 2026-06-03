@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Typography, Input, Button, Card, Steps, Alert, Spin } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { supabase } from '@config/supabase';
-import './Storefront.css';
 
 const { Title, Text } = Typography;
 
