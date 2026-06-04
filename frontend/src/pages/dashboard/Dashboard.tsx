@@ -1,4 +1,5 @@
 import React, { useEffect, useState, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Row,
   Col,
@@ -41,6 +42,10 @@ import EmployeeDashboard from '../employees/EmployeeDashboard';
 import './Dashboard.css';
 
 import { UserRole } from '@/types';
+import DashboardStats from './components/DashboardStats';
+import RevenueTrend from './components/RevenueTrend';
+import ActivityCharts from './components/ActivityCharts';
+import ExpenseTrend from './components/ExpenseTrend';
 
 interface DashboardStats {
   totalProducts: number;
@@ -73,9 +78,11 @@ interface StatCardProps {
   value: string | number;
   icon: ReactNode;
   color: string;
+  onClick?: () => void;
 }
 
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
   const role = useAppSelector((state) => state.auth.user?.user_metadata?.role);
   const validRoles: UserRole[] = ['admin', 'super_admin', 'owner', 'hr_manager', 'warehouse_manager', 'accountant', 'vendor_manager', 'logistics_manager', 'production_manager', 'sales_executive', 'employee'];
   const selectedRole = validRoles.includes(role as UserRole) ? (role as UserRole) : undefined;
@@ -279,8 +286,8 @@ const Dashboard: React.FC = () => {
 
   const COLORS = ['#4f46e5', '#10b981', '#f59e0b', '#f43f5e'];
 
-  const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color }) => (
-    <Card hoverable>
+  const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, onClick }) => (
+    <Card hoverable onClick={onClick} style={onClick ? { cursor: 'pointer' } : {}}>
       <Statistic
         title={title}
         value={value}
@@ -331,6 +338,7 @@ const Dashboard: React.FC = () => {
       icon: <AppstoreOutlined />,
       color: '#667eea',
       visible: !selectedRole || ['admin', 'super_admin', 'owner', 'warehouse_manager', 'store_keeper', 'production_manager', 'sales_executive'].includes(selectedRole),
+      onClick: () => navigate('/inventory'),
     },
     {
       title: 'Current Stock',
@@ -338,6 +346,7 @@ const Dashboard: React.FC = () => {
       icon: <AppstoreOutlined />,
       color: '#2563eb',
       visible: !selectedRole || ['admin', 'super_admin', 'owner', 'warehouse_manager', 'store_keeper', 'production_manager'].includes(selectedRole),
+      onClick: () => navigate('/inventory'),
     },
     {
       title: 'Low Stock Alerts',
@@ -345,6 +354,7 @@ const Dashboard: React.FC = () => {
       icon: <WarningOutlined />,
       color: '#f97316',
       visible: !selectedRole || ['admin', 'super_admin', 'owner', 'warehouse_manager', 'store_keeper', 'production_manager'].includes(selectedRole),
+      onClick: () => navigate('/inventory'),
     },
     {
       title: 'Total Employees',
@@ -467,222 +477,15 @@ const Dashboard: React.FC = () => {
             icon={<WarningOutlined />}
             showIcon
             closable
-            style={{ marginBottom: '24px' }}
+            style={{ marginBottom: '24px', cursor: 'pointer' }}
+            onClick={() => navigate('/inventory')}
           />
         )}
 
-        {/* Stats Row */}
-        <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
-          {visibleCards.map((card) => (
-            <Col xs={24} sm={12} lg={6} key={card.title}>
-              <StatCard
-                title={card.title}
-                value={card.value}
-                icon={card.icon}
-                color={card.color}
-              />
-            </Col>
-          ))}
-        </Row>
-
-        {/* Revenue Trend Chart (Sales & Admin) */}
-      {(role === 'admin' || role === 'super_admin' || role === 'owner' || role === 'sales_executive') && (
-        <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-          <Col xs={24}>
-            <Card title="7-Day Revenue Trend" hoverable>
-              {stats.revenueTrend && stats.revenueTrend.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={stats.revenueTrend}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip formatter={(value: number) => `₹${value.toLocaleString()}`} />
-                    <Legend />
-                    <Line type="monotone" dataKey="revenue" name="Revenue (₹)" stroke="#52c41a" activeDot={{ r: 8 }} strokeWidth={3} />
-                  </LineChart>
-                </ResponsiveContainer>
-              ) : (
-                <Empty description="No revenue data available" />
-              )}
-            </Card>
-          </Col>
-        </Row>
-      )}
-
-      {/* Main Charts */}
-        <Row gutter={[16, 16]}>
-          <Col xs={24} lg={12}>
-            <Card
-              title={
-                role === 'hr_manager'
-                  ? 'Attendance Breakdown'
-                  : role === 'vendor_manager'
-                  ? 'Vendor Activity'
-                  : role === 'accountant'
-                  ? 'Expense Performance'
-                  : 'Stock by Category'
-              }
-              hoverable
-            >
-              {role === 'hr_manager' ? (
-                chartData.attendance.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={chartData.attendance}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, value }) => `${name}: ${value}`}
-                        outerRadius={80}
-                        fill="#4f46e5"
-                        dataKey="value"
-                      >
-                        {chartData.attendance.map((_, index) => (
-                          <Cell key={`cell-attendance-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <Empty description="No attendance data" />
-                )
-              ) : role === 'vendor_manager' ? (
-                chartData.vendorOrders.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={chartData.vendorOrders}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="value" fill="#4f46e5" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <Empty description="No vendor data" />
-                )
-              ) : role === 'accountant' ? (
-                chartData.expensesTrend.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={chartData.expensesTrend}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Line type="monotone" dataKey="amount" stroke="#4f46e5" activeDot={{ r: 8 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <Empty description="No expense data" />
-                )
-              ) : chartData.inventory.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={chartData.inventory}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="stock" fill="#4f46e5" />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <Empty description="No data" />
-              )}
-            </Card>
-          </Col>
-
-          <Col xs={24} lg={12}>
-            <Card
-              title={
-                role === 'accountant' || role === 'hr_manager'
-                  ? 'Monthly Expense Summary'
-                  : role === 'vendor_manager'
-                  ? 'Purchase Order Status'
-                  : 'Order Status'
-              }
-              hoverable
-            >
-              {role === 'accountant' || role === 'hr_manager' ? (
-                chartData.expensesByCategory.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={chartData.expensesByCategory}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, value }) => `${name}: ₹${value}`}
-                        outerRadius={80}
-                        fill="#4f46e5"
-                        dataKey="amount"
-                      >
-                        {chartData.expensesByCategory.map((_, index) => (
-                          <Cell key={`cell-expense-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip formatter={(value: number) => `₹${value.toLocaleString()}`} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <Empty description="No expense data" />
-                )
-              ) : chartData.orders.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={chartData.orders}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, value }) => `${name}: ${value}`}
-                      outerRadius={80}
-                      fill="#4f46e5"
-                      dataKey="value"
-                    >
-                      {chartData.orders.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : (
-                <Empty description="No data" />
-              )}
-            </Card>
-          </Col>
-        </Row>
-
-        {/* Expense Trend */}
-        <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
-          <Col xs={24}>
-            <Card title="Monthly Expense Trend" hoverable>
-              {chartData.expensesTrend.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={chartData.expensesTrend}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="amount"
-                      stroke="#10b981"
-                      activeDot={{ r: 8 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              ) : (
-                <Empty description="No data" />
-              )}
-            </Card>
-          </Col>
-        </Row>
+        <DashboardStats stats={stats} selectedRole={selectedRole} />
+        <RevenueTrend trendData={stats.revenueTrend} role={selectedRole} />
+        <ActivityCharts chartData={chartData} role={selectedRole} />
+        <ExpenseTrend expensesTrend={chartData.expensesTrend} role={selectedRole} />
       </Spin>
     </div>
   );
