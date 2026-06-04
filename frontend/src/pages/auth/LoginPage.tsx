@@ -82,12 +82,19 @@ const LoginPage: React.FC = () => {
         </Space>
 
         <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '12px', color: '#666' }}>
-          <p><strong>Working Demo Roles:</strong></p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', textAlign: 'left', background: '#f5f5f5', padding: '10px', borderRadius: '4px' }}>
-            <span>admin@sriganga.com</span><span>Password123!</span>
-            <span>hr@sriganga.com</span><span>Password123!</span>
+          <p><strong>Available Demo Roles:</strong><br/>(Password for all: <strong>Password123!</strong>)</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', textAlign: 'left', background: '#f5f5f5', padding: '10px', borderRadius: '4px' }}>
+            <span>admin@sriganga.com</span>
+            <span>hr_manager@sriganga.com</span>
+            <span>warehouse_manager@sriganga.com</span>
+            <span>logistics_manager@sriganga.com</span>
+            <span>production_manager@sriganga.com</span>
+            <span>store_keeper@sriganga.com</span>
+            <span>sales_executive@sriganga.com</span>
+            <span>accountant@sriganga.com</span>
+            <span>vendor_manager@sriganga.com</span>
+            <span>employee@sriganga.com</span>
           </div>
-          <p style={{ marginTop: '10px', color: '#999' }}>Note: New user creation is temporarily restricted by a database lock on the live server.</p>
         </div>
       </Card>
     </div>
