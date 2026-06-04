@@ -68,6 +68,8 @@ const SignUpPage: React.FC = () => {
                 { value: 'sales_executive', label: 'Sales Executive' },
                 { value: 'accountant', label: 'Accountant' },
                 { value: 'vendor_manager', label: 'Vendor Manager' },
+                { value: 'logistics_manager', label: 'Logistics Manager' },
+                { value: 'employee', label: 'Employee' },
                 { value: 'admin', label: 'Administrator' },
               ]}
             />
@@ -137,6 +139,10 @@ const SignUpPage: React.FC = () => {
             </Button>
           </Form.Item>
         </Form>
+
+        <div style={{ marginBottom: 16, textAlign: 'center', color: '#8c8c8c', fontSize: '12px' }}>
+          <strong>Note:</strong> Please use a valid email address as you will need to click the verification link sent to your email before logging in.
+        </div>
 
         <Button type="link" block onClick={() => navigate('/login')}>
           Already have an account? Sign In

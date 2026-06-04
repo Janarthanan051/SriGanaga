@@ -37,6 +37,7 @@ import { expenseService, wastageService } from '@services/operationsService';
 import { useAppSelector } from '@redux/hooks';
 import dayjs from 'dayjs';
 import { ExportOptions } from '@components/shared/ExportOptions';
+import EmployeeDashboard from '../employees/EmployeeDashboard';
 import './Dashboard.css';
 
 type UserRole = 'admin' | 'hr_manager' | 'warehouse_manager' | 'accountant' | 'vendor_manager';
@@ -106,6 +107,11 @@ const Dashboard: React.FC = () => {
   });
 
   useEffect(() => {
+    if (role === 'employee') {
+      setLoading(false);
+      return;
+    }
+
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
@@ -406,6 +412,10 @@ const Dashboard: React.FC = () => {
   ];
 
   const visibleCards = cards.filter((card) => card.visible);
+
+  if (role === 'employee') {
+    return <EmployeeDashboard />;
+  }
 
   return (
     <div className="dashboard" id="dashboard-content">

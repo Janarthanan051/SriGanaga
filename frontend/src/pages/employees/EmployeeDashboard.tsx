@@ -7,12 +7,14 @@ import { Employee, Payroll } from '@/types';
 import dayjs from 'dayjs';
 import { ExportOptions } from '@components/shared/ExportOptions';
 import { employeeService } from '@services/hrService';
+import { useAppSelector } from '@redux/hooks';
 
 const { Title, Text } = Typography;
 
 const EmployeeDashboard: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const currentUser = useAppSelector((state) => state.auth.user);
   
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [payrolls, setPayrolls] = useState<Payroll[]>([]);
@@ -34,8 +36,31 @@ const EmployeeDashboard: React.FC = () => {
   useEffect(() => {
     if (id) {
       fetchData(id);
+    } else if (currentUser?.email) {
+      fetchDataByEmail(currentUser.email);
+    } else {
+      setLoading(false);
     }
-  }, [id]);
+  }, [id, currentUser]);
+
+  const fetchDataByEmail = async (email: string) => {
+    try {
+      setLoading(true);
+      const { data: empData, error: empError } = await supabase
+        .from('employees')
+        .select('*')
+        .eq('email', email)
+        .single();
+        
+      if (empError || !empData) throw new Error("Employee profile not linked to this email.");
+      
+      setEmployee(empData);
+      await fetchRelatedData(empData.id);
+    } catch (error: any) {
+      message.error(error.message || 'Failed to load employee details');
+      setLoading(false);
+    }
+  };
 
   const fetchData = async (employeeId: string) => {
     try {
@@ -56,11 +81,20 @@ const EmployeeDashboard: React.FC = () => {
       
       setEmployee(empData);
 
+      await fetchRelatedData(empData.id);
+      
+    } catch (error: any) {
+      message.error(error.message || 'Failed to load employee details');
+      setLoading(false);
+    }
+  };
+
+  const fetchRelatedData = async (empId: string) => {
       // 2. Fetch Payroll History
       const { data: payrollData } = await supabase
         .from('payroll')
         .select('*')
-        .eq('employee_id', empData.id)
+        .eq('employee_id', empId)
         .order('year', { ascending: false })
         .order('month', { ascending: false });
 
@@ -70,7 +104,7 @@ const EmployeeDashboard: React.FC = () => {
       const { data: attendanceData } = await supabase
         .from('attendance')
         .select('*')
-        .eq('employee_id', empData.id)
+        .eq('employee_id', empId)
         .order('date', { ascending: false });
 
       const att = attendanceData || [];
@@ -93,11 +127,7 @@ const EmployeeDashboard: React.FC = () => {
         currentMonthDaysAttended,
       });
       
-    } catch (error: any) {
-      message.error(error.message || 'Failed to load employee details');
-    } finally {
       setLoading(false);
-    }
   };
 
   const showEditModal = () => {
@@ -135,8 +165,9 @@ const EmployeeDashboard: React.FC = () => {
   if (!employee) {
     return (
       <div style={{ textAlign: 'center', padding: '50px' }}>
-        <Title level={4}>Employee not found</Title>
-        <Button onClick={() => navigate('/employees')}>Back to Directory</Button>
+        <Title level={4}>Employee profile not found</Title>
+        <p>Your account is not linked to an employee record in the HR system.</p>
+        {id && <Button onClick={() => navigate('/employees')}>Back to Directory</Button>}
       </div>
     );
   }
@@ -162,9 +193,13 @@ const EmployeeDashboard: React.FC = () => {
   return (
     <div className="employee-dashboard" id="employee-dashboard-content">
       <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }}>
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/employees')}>
-          Back to Employees
-        </Button>
+        {id ? (
+          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/employees')}>
+            Back to Employees
+          </Button>
+        ) : (
+          <div /> // Placeholder to maintain flex-between layout
+        )}
         <Space>
           <ExportOptions 
             elementId="employee-dashboard-content" 
