@@ -117,22 +117,25 @@ const Dashboard: React.FC = () => {
         setLoading(true);
         const currentMonth = new Date().toISOString().slice(0, 7);
 
-        const isAdmin = role === 'admin';
+        const isAdmin = role === 'admin' || role === 'super_admin' || role === 'owner';
         const isHr = role === 'hr_manager';
-        const isWarehouse = role === 'warehouse_manager';
+        const isWarehouse = role === 'warehouse_manager' || role === 'store_keeper';
         const isAccountant = role === 'accountant';
         const isVendor = role === 'vendor_manager';
+        const isLogistics = role === 'logistics_manager';
+        const isProduction = role === 'production_manager';
+        const isSales = role === 'sales_executive';
 
         const products =
-          isAdmin || isWarehouse
+          isAdmin || isWarehouse || isProduction || isVendor || isSales
             ? (await productService.getProducts(1, 100)).data
             : [];
         const employees =
-          isAdmin || isHr
+          isAdmin || isHr || isProduction
             ? (await employeeService.getEmployees(1, 100)).data
             : [];
         const orders =
-          isAdmin || isWarehouse || isVendor
+          isAdmin || isWarehouse || isVendor || isLogistics || isSales || isProduction
             ? (await orderService.getOrders(1, 100)).data
             : [];
         const expensesResult =
@@ -144,7 +147,7 @@ const Dashboard: React.FC = () => {
             ? await expenseService.getExpensesTrend(6)
             : [];
         const vendors =
-          isAdmin || isVendor
+          isAdmin || isVendor || isWarehouse || isLogistics
             ? (await vendorService.getVendors(1, 100)).data
             : [];
         const payrolls =
@@ -152,11 +155,11 @@ const Dashboard: React.FC = () => {
             ? await payrollService.getPayroll()
             : [];
         const attendanceRecords =
-          isAdmin || isHr
+          isAdmin || isHr || isProduction
             ? await attendanceService.getAttendance()
             : [];
         const wastageResult =
-          isAdmin || isWarehouse
+          isAdmin || isWarehouse || isLogistics || isProduction
             ? await wastageService.getWastage(1, 100)
             : { data: [], total: 0 };
 
@@ -176,9 +179,8 @@ const Dashboard: React.FC = () => {
         const wastageQuantity = (wastageResult.data || []).reduce((sum, item) => sum + (item.quantity || 0), 0);
         const wastagePercentage = currentStock > 0 ? Number(((wastageQuantity / currentStock) * 100).toFixed(1)) : 0;
 
-        const isSales = role === 'sales_executive';
         const salesAnalytics =
-          isAdmin || isSales || role === 'owner' || role === 'super_admin'
+          isAdmin || isSales
             ? await import('@services/salesService').then(m => m.salesService.getSalesAnalytics())
             : { monthlyRevenue: 0, todayRevenue: 0, revenueTrend: [] };
 
@@ -324,98 +326,98 @@ const Dashboard: React.FC = () => {
       value: stats.totalProducts,
       icon: <AppstoreOutlined />,
       color: '#667eea',
-      visible: !selectedRole || ['admin', 'warehouse_manager'].includes(selectedRole),
+      visible: !selectedRole || ['admin', 'super_admin', 'owner', 'warehouse_manager', 'store_keeper', 'production_manager', 'sales_executive'].includes(selectedRole),
     },
     {
       title: 'Current Stock',
       value: stats.currentStock,
       icon: <AppstoreOutlined />,
       color: '#2563eb',
-      visible: !selectedRole || ['admin', 'warehouse_manager'].includes(selectedRole),
+      visible: !selectedRole || ['admin', 'super_admin', 'owner', 'warehouse_manager', 'store_keeper', 'production_manager'].includes(selectedRole),
     },
     {
       title: 'Low Stock Alerts',
       value: stats.lowStockAlerts,
       icon: <WarningOutlined />,
       color: '#f97316',
-      visible: !selectedRole || ['admin', 'warehouse_manager'].includes(selectedRole),
+      visible: !selectedRole || ['admin', 'super_admin', 'owner', 'warehouse_manager', 'store_keeper', 'production_manager'].includes(selectedRole),
     },
     {
       title: 'Total Employees',
       value: stats.employeesCount,
       icon: <UserOutlined />,
       color: '#764ba2',
-      visible: !selectedRole || ['admin', 'hr_manager'].includes(selectedRole),
+      visible: !selectedRole || ['admin', 'super_admin', 'owner', 'hr_manager'].includes(selectedRole),
     },
     {
       title: 'Attendance',
       value: `${stats.attendancePercentage}%`,
       icon: <UserOutlined />,
       color: '#22c55e',
-      visible: !selectedRole || ['admin', 'hr_manager'].includes(selectedRole),
+      visible: !selectedRole || ['admin', 'super_admin', 'owner', 'hr_manager', 'production_manager'].includes(selectedRole),
     },
     {
       title: 'Payroll Processed',
       value: stats.payrollProcessed ? 'Yes' : 'No',
       icon: <DollarOutlined />,
       color: '#10b981',
-      visible: !selectedRole || ['admin', 'hr_manager', 'accountant'].includes(selectedRole),
+      visible: !selectedRole || ['admin', 'super_admin', 'owner', 'hr_manager', 'accountant'].includes(selectedRole),
     },
     {
       title: 'Total Orders',
       value: stats.pendingOrders + stats.confirmedOrders,
       icon: <ShoppingCartOutlined />,
       color: '#f59e0b',
-      visible: !selectedRole || ['admin', 'warehouse_manager', 'vendor_manager'].includes(selectedRole),
+      visible: !selectedRole || ['admin', 'super_admin', 'owner', 'warehouse_manager', 'store_keeper', 'vendor_manager', 'logistics_manager', 'sales_executive'].includes(selectedRole),
     },
     {
       title: 'Pending Orders',
       value: stats.pendingOrders,
       icon: <ShoppingCartOutlined />,
       color: '#f97316',
-      visible: !selectedRole || ['admin', 'warehouse_manager', 'vendor_manager'].includes(selectedRole),
+      visible: !selectedRole || ['admin', 'super_admin', 'owner', 'warehouse_manager', 'store_keeper', 'vendor_manager', 'logistics_manager', 'sales_executive'].includes(selectedRole),
     },
     {
       title: 'Confirmed Orders',
       value: stats.confirmedOrders,
       icon: <ShoppingCartOutlined />,
       color: '#10b981',
-      visible: !selectedRole || ['admin', 'warehouse_manager', 'vendor_manager'].includes(selectedRole),
+      visible: !selectedRole || ['admin', 'super_admin', 'owner', 'warehouse_manager', 'store_keeper', 'vendor_manager', 'logistics_manager', 'sales_executive'].includes(selectedRole),
     },
     {
       title: 'Monthly Expenses',
       value: `₹${stats.monthlyExpenses.toLocaleString()}`,
       icon: <DollarOutlined />,
       color: '#ef4444',
-      visible: !selectedRole || ['admin', 'hr_manager', 'accountant'].includes(selectedRole),
+      visible: !selectedRole || ['admin', 'super_admin', 'owner', 'hr_manager', 'accountant'].includes(selectedRole),
     },
     {
       title: 'Wastage %',
       value: `${stats.wastagePercentage}%`,
       icon: <WarningOutlined />,
       color: '#f43f5e',
-      visible: !selectedRole || ['admin', 'warehouse_manager'].includes(selectedRole),
+      visible: !selectedRole || ['admin', 'super_admin', 'owner', 'warehouse_manager', 'store_keeper', 'production_manager'].includes(selectedRole),
     },
     {
       title: 'Vendor Count',
       value: stats.vendorCount,
       icon: <ShoppingCartOutlined />,
       color: '#2563eb',
-      visible: !selectedRole || ['admin', 'vendor_manager'].includes(selectedRole),
+      visible: !selectedRole || ['admin', 'super_admin', 'owner', 'vendor_manager', 'logistics_manager'].includes(selectedRole),
     },
     {
       title: 'Sales Revenue (MTD)',
       value: `₹${stats.salesMonthlyRevenue.toLocaleString()}`,
       icon: <DollarOutlined />,
       color: '#10b981',
-      visible: !selectedRole || ['admin', 'owner', 'sales_executive'].includes(selectedRole),
+      visible: !selectedRole || ['admin', 'super_admin', 'owner', 'sales_executive'].includes(selectedRole),
     },
     {
       title: "Today's Sales Revenue",
       value: `₹${stats.salesTodayRevenue.toLocaleString()}`,
       icon: <DollarOutlined />,
       color: '#4f46e5',
-      visible: !selectedRole || ['admin', 'owner', 'sales_executive'].includes(selectedRole),
+      visible: !selectedRole || ['admin', 'super_admin', 'owner', 'sales_executive'].includes(selectedRole),
     },
   ];
 
