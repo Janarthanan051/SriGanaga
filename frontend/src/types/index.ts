@@ -10,7 +10,7 @@ export interface User {
   created_at: string;
 }
 
-export type UserRole = 'admin' | 'super_admin' | 'owner' | 'manager' | 'hr_manager' | 'warehouse_manager' | 'accountant' | 'vendor_manager' | 'production_manager' | 'store_keeper' | 'sales_executive';
+export type UserRole = 'admin' | 'super_admin' | 'owner' | 'manager' | 'hr_manager' | 'warehouse_manager' | 'accountant' | 'vendor_manager' | 'production_manager' | 'store_keeper' | 'sales_executive' | 'logistics_manager' | 'employee';
 
 export interface AuthState {
   user: User | null;

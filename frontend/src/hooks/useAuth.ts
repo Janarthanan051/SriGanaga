@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAppDispatch } from '@redux/hooks';
 import { setUser, setError, setLoading } from '@redux/authSlice';
 import { authService } from '@services/authService';
-import { User } from '@/types';
+import { User, UserRole } from '@/types';
 
 export const useAuth = () => {
   const dispatch = useAppDispatch();
@@ -70,7 +70,7 @@ export const useSignIn = () => {
           ...finalUser,
           user_metadata: {
             ...finalUser.user_metadata,
-            role: roleOverride,
+            role: roleOverride as UserRole,
             full_name: nameOverride || finalUser.user_metadata.full_name
           }
         };

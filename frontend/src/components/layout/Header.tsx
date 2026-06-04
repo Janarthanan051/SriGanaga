@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '@redux/hooks';
 import { setUser } from '@redux/authSlice';
 import { useSignOut } from '@hooks/useAuth';
+import { UserRole } from '@/types';
 import './Header.css';
 
 const { Header } = Layout;
@@ -90,7 +91,7 @@ const TopHeader: React.FC<TopHeaderProps> = ({ collapsed, onToggle }) => {
                   dispatch(
                     setUser({
                       ...user,
-                      user_metadata: { ...user.user_metadata, role: e.key },
+                      user_metadata: { ...user.user_metadata, role: e.key as UserRole },
                     })
                   );
                 }

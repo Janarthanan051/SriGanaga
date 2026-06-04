@@ -40,7 +40,7 @@ import { ExportOptions } from '@components/shared/ExportOptions';
 import EmployeeDashboard from '../employees/EmployeeDashboard';
 import './Dashboard.css';
 
-type UserRole = 'admin' | 'super_admin' | 'owner' | 'hr_manager' | 'warehouse_manager' | 'accountant' | 'vendor_manager' | 'logistics_manager' | 'production_manager' | 'sales_executive' | 'employee';
+import { UserRole } from '@/types';
 
 interface DashboardStats {
   totalProducts: number;
@@ -294,8 +294,10 @@ const Dashboard: React.FC = () => {
     admin: 'Administrator',
     super_admin: 'Super Admin',
     owner: 'Owner',
+    manager: 'Manager',
     hr_manager: 'HR Manager',
     warehouse_manager: 'Warehouse Manager',
+    store_keeper: 'Store Keeper',
     accountant: 'Accountant',
     vendor_manager: 'Vendor Manager',
     employee: 'Employee',
@@ -309,8 +311,10 @@ const Dashboard: React.FC = () => {
     admin: 'Full ERP access with company-wide analytics and management controls.',
     super_admin: 'Full ERP access with company-wide analytics and management controls.',
     owner: 'Full ERP access with company-wide analytics and management controls.',
+    manager: 'General management access and overview.',
     hr_manager: 'HR dashboard with employee headcount, payroll tracking, and attendance summaries.',
     warehouse_manager: 'Warehouse controls for inventory, stock movement, and order readiness.',
+    store_keeper: 'Inventory management and stock alerts.',
     accountant: 'Finance dashboard focused on expenses, payroll, and reporting insights.',
     vendor_manager: 'Supplier and purchase order insights for vendors and procurement.',
     employee: 'General employee dashboard for self-service and overview.',
