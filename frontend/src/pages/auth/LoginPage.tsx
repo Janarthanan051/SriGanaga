@@ -86,7 +86,6 @@ const LoginPage: React.FC = () => {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', textAlign: 'left', background: '#f5f5f5', padding: '10px', borderRadius: '4px' }}>
             <span>admin@sriganga.com</span><span>Password123!</span>
             <span>hr@sriganga.com</span><span>Password123!</span>
-            <span>employee@sriganga.com</span><span>Password123!</span>
           </div>
           <p style={{ marginTop: '10px', color: '#999' }}>Note: New user creation is temporarily restricted by a database lock on the live server.</p>
         </div>
