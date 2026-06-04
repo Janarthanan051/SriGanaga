@@ -33,9 +33,147 @@ import { logisticsService } from '@services/operationsService';
 import { orderService } from '@services/vendorService';
 import { Logistics, Order } from '@/types';
 import { ExportOptions } from '@components/shared/ExportOptions';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
+import { supabase } from '@config/supabase';
 import './Logistics.css';
 
 const { Option } = Select;
+
+const ExpandedOrderDetails: React.FC<{ orderId: string }> = ({ orderId }) => {
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (orderId) fetchItems();
+  }, [orderId]);
+
+  const fetchItems = async () => {
+    setLoading(true);
+    try {
+      // Assuming 'products' table can be joined this way in Supabase
+      const { data, error } = await supabase
+        .from('order_items')
+        .select(`
+          *,
+          product:products(name, sku, unit)
+        `)
+        .eq('order_id', orderId);
+      
+      if (error) throw error;
+      setItems(data || []);
+    } catch (err) {
+      console.error('Failed to fetch order items:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <Spin size="small" />;
+  if (!items.length) return <div style={{ padding: 16 }}>No products found for this order.</div>;
+
+  return (
+    <div style={{ padding: '8px 24px', backgroundColor: '#fafafa', borderRadius: '4px' }}>
+      <h4 style={{ marginTop: 0, marginBottom: 12 }}>Included Products & Quantities</h4>
+      <Table 
+        dataSource={items}
+        rowKey="id"
+        pagination={false}
+        size="small"
+        columns={[
+          { title: 'SKU', dataIndex: ['product', 'sku'], key: 'sku', render: (val) => val || 'N/A' },
+          { title: 'Product Name', dataIndex: ['product', 'name'], key: 'name', render: (val) => val || 'Unknown Product' },
+          { title: 'Quantity', dataIndex: 'quantity', key: 'quantity', render: (val, record: any) => `${val} ${record.product?.unit || ''}` },
+          { title: 'Unit Price', dataIndex: 'unit_price', key: 'unit_price', render: val => `₹${val.toLocaleString()}` },
+          { title: 'Total Price', dataIndex: 'total_price', key: 'total_price', render: val => `₹${val.toLocaleString()}` }
+        ]}
+      />
+    </div>
+  );
+};
+
+const VehicleHistoryModal: React.FC<{ vehicleNumber: string | null; visible: boolean; onClose: () => void }> = ({ vehicleNumber, visible, onClose }) => {
+  const [historyData, setHistoryData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (visible && vehicleNumber) {
+      fetchVehicleHistory();
+    }
+  }, [visible, vehicleNumber]);
+
+  const fetchVehicleHistory = async () => {
+    setLoading(true);
+    try {
+      // 1. Fetch all shipments for this vehicle
+      const { data: shipments, error: shipErr } = await supabase
+        .from('logistics')
+        .select('*')
+        .eq('vehicle_number', vehicleNumber)
+        .order('dispatch_date', { ascending: false });
+
+      if (shipErr) throw shipErr;
+
+      // 2. Extract order IDs
+      const orderIds = shipments?.map(s => s.order_id).filter(Boolean) || [];
+      
+      let allItems: any[] = [];
+      if (orderIds.length > 0) {
+        // 3. Fetch order items for those orders
+        const { data: items, error: itemsErr } = await supabase
+          .from('order_items')
+          .select(`*, product:products(name, unit)`)
+          .in('order_id', orderIds);
+        
+        if (itemsErr) throw itemsErr;
+        allItems = items || [];
+      }
+
+      // 4. Map items to shipments
+      const enrichedHistory = shipments?.map(shipment => {
+        const shipmentItems = allItems.filter(item => item.order_id === shipment.order_id);
+        const productsList = shipmentItems.map(i => `${i.product?.name || 'Unknown'} (${i.quantity} ${i.product?.unit || ''})`).join(', ');
+        return {
+          ...shipment,
+          productsSummary: productsList || 'No products recorded',
+        };
+      }) || [];
+
+      setHistoryData(enrichedHistory);
+    } catch (err) {
+      console.error('Failed to fetch vehicle history', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const columns = [
+    { title: 'Dispatch Date', dataIndex: 'dispatch_date', key: 'dispatch_date', render: (val: string) => dayjs(val).format('DD/MM/YYYY') },
+    { title: 'Route', dataIndex: 'route', key: 'route', render: (val: string) => val || 'N/A' },
+    { title: 'Driver', dataIndex: 'driver_name', key: 'driver_name' },
+    { title: 'Products Carried', dataIndex: 'productsSummary', key: 'productsSummary' },
+    { title: 'Status', dataIndex: 'status', key: 'status', render: (val: string) => <Tag color="blue">{val.toUpperCase()}</Tag> },
+  ];
+
+  return (
+    <Modal
+      title={`History for Vehicle: ${vehicleNumber}`}
+      open={visible}
+      onCancel={onClose}
+      footer={[<Button key="close" onClick={onClose}>Close</Button>]}
+      width={800}
+    >
+      <Spin spinning={loading}>
+        <Table
+          columns={columns}
+          dataSource={historyData}
+          rowKey="id"
+          pagination={{ pageSize: 5 }}
+          size="small"
+        />
+      </Spin>
+    </Modal>
+  );
+};
 
 const LogisticsPage: React.FC = () => {
   const [shipments, setShipments] = useState<Logistics[]>([]);
@@ -55,6 +193,10 @@ const LogisticsPage: React.FC = () => {
     inTransit: 0,
     delivered: 0,
   });
+
+  // Vehicle History Modal State
+  const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
+  const [isVehicleModalVisible, setIsVehicleModalVisible] = useState(false);
 
   useEffect(() => {
     fetchShipments();
@@ -167,9 +309,9 @@ const LogisticsPage: React.FC = () => {
       dataIndex: 'order_id',
       key: 'order_id',
       render: (orderId: string) => (
-        <Tooltip title={orderId}>
+        <Tooltip title={orderId || 'N/A'}>
           <span style={{ fontFamily: 'monospace', fontWeight: 500 }}>
-            {orderId.substring(0, 8)}...
+            {orderId ? `${orderId.substring(0, 8)}...` : 'N/A'}
           </span>
         </Tooltip>
       ),
@@ -180,7 +322,16 @@ const LogisticsPage: React.FC = () => {
       key: 'vehicle_number',
       render: (num: string, record: Logistics) => (
         <div>
-          <span style={{ fontWeight: 500 }}>{num || 'N/A'}</span>
+          <Button 
+            type="link" 
+            style={{ padding: 0, fontWeight: 500 }} 
+            onClick={() => {
+              setSelectedVehicle(num);
+              setIsVehicleModalVisible(true);
+            }}
+          >
+            {num || 'N/A'}
+          </Button>
           {record.vehicle_status && (
             <div style={{ fontSize: '12px' }}>
               <Tag color={record.vehicle_status === 'idle' ? 'default' : record.vehicle_status === 'maintenance' ? 'error' : 'processing'}>
@@ -246,7 +397,7 @@ const LogisticsPage: React.FC = () => {
         }
         return (
           <Tag icon={icon} color={color} style={{ textTransform: 'capitalize', padding: '2px 8px', borderRadius: '4px' }}>
-            {status.replace('_', ' ')}
+            {status ? status.replace('_', ' ') : 'N/A'}
           </Tag>
         );
       },
@@ -280,6 +431,24 @@ const LogisticsPage: React.FC = () => {
       ),
     },
   ];
+
+  const pieData = [
+    { name: 'Pending', value: stats.pending },
+    { name: 'In Transit', value: stats.inTransit },
+    { name: 'Delivered', value: stats.delivered },
+  ];
+  const COLORS = ['#faad14', '#1890ff', '#52c41a'];
+
+  const dispatchVolume = shipments.reduce((acc, curr) => {
+    const date = dayjs(curr.dispatch_date).format('MMM DD');
+    acc[date] = (acc[date] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  
+  const barData = Object.keys(dispatchVolume).map(key => ({
+    date: key,
+    shipments: dispatchVolume[key],
+  })).slice(0, 7).reverse();
 
   return (
     <div className="logistics-page" id="logistics-content">
@@ -326,6 +495,50 @@ const LogisticsPage: React.FC = () => {
         </Col>
       </Row>
 
+      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+        <Col xs={24} md={12}>
+          <Card title="Status Distribution">
+            <div style={{ height: 300 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    paddingAngle={5}
+                    dataKey="value"
+                    label
+                  >
+                    {pieData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <RechartsTooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        </Col>
+        <Col xs={24} md={12}>
+          <Card title="Recent Dispatch Volume">
+            <div style={{ height: 300 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={barData}>
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <RechartsTooltip />
+                  <Bar dataKey="shipments" fill="#4f46e5" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        </Col>
+      </Row>
+
       <Card
         title={<h2>Logistics & Shipments</h2>}
         extra={
@@ -364,6 +577,10 @@ const LogisticsPage: React.FC = () => {
             columns={columns}
             dataSource={shipments}
             rowKey="id"
+            expandable={{
+              expandedRowRender: (record) => <ExpandedOrderDetails orderId={record.order_id} />,
+              rowExpandable: (record) => !!record.order_id,
+            }}
             pagination={{
               current: pagination.current,
               pageSize: pagination.pageSize,
@@ -509,6 +726,13 @@ const LogisticsPage: React.FC = () => {
           </Row>
         </Form>
       </Modal>
+
+      {/* Vehicle History Modal */}
+      <VehicleHistoryModal 
+        vehicleNumber={selectedVehicle}
+        visible={isVehicleModalVisible}
+        onClose={() => setIsVehicleModalVisible(false)}
+      />
     </div>
   );
 };

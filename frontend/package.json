@@ -15,7 +15,7 @@
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
     "@reduxjs/toolkit": "^1.9.7",
-    "@supabase/supabase-js": "^2.38.4",
+    "@supabase/supabase-js": "^2.107.0",
     "antd": "^5.11.3",
     "apexcharts": "^4.0.0",
     "axios": "^1.6.2",

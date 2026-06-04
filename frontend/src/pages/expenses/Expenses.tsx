@@ -17,13 +17,17 @@ import {
   Tooltip,
   Popconfirm,
   Upload,
+  Statistic,
 } from 'antd';
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   UploadOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
 } from '@ant-design/icons';
+import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
 import dayjs from 'dayjs';
 import { expenseService } from '@services/operationsService';
 import { storageService } from '@services/authService';
@@ -40,10 +44,21 @@ const ExpensesPage: React.FC = () => {
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
   const [total, setTotal] = useState(0);
   const [fileList, setFileList] = useState<any[]>([]);
+  const [allExpenses, setAllExpenses] = useState<Expense[]>([]);
 
   useEffect(() => {
     fetchExpenses();
-  }, [pagination, selectedMonth]);
+    fetchAllExpenses();
+  }, [pagination.current, pagination.pageSize, selectedMonth]);
+
+  const fetchAllExpenses = async () => {
+    try {
+      const { data } = await expenseService.getExpenses(1, 1000, { month: selectedMonth });
+      setAllExpenses(data || []);
+    } catch (error) {
+      console.error('Failed to fetch all expenses for stats');
+    }
+  };
 
   const fetchExpenses = async () => {
     try {
@@ -110,6 +125,7 @@ const ExpensesPage: React.FC = () => {
       form.resetFields();
       setFileList([]);
       fetchExpenses();
+      fetchAllExpenses();
     } catch (error) {
       console.error(error);
       message.error(editingId ? 'Failed to update expense' : 'Failed to add expense');
@@ -190,6 +206,7 @@ const ExpensesPage: React.FC = () => {
                   await expenseService.deleteExpense(record.id);
                   message.success('Expense deleted successfully');
                   fetchExpenses();
+                  fetchAllExpenses();
                 } catch (error) {
                   message.error('Failed to delete expense');
                 }
@@ -203,8 +220,115 @@ const ExpensesPage: React.FC = () => {
     },
   ];
 
+  // Analytics Data Preparation
+  const totalAmount = allExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+  const approvedAmount = allExpenses.filter(e => e.status === 'approved').reduce((sum, exp) => sum + exp.amount, 0);
+  const pendingAmount = allExpenses.filter(e => e.status === 'pending').reduce((sum, exp) => sum + exp.amount, 0);
+
+  const categoryMap = allExpenses.reduce((acc, exp) => {
+    acc[exp.category] = (acc[exp.category] || 0) + exp.amount;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const pieData = Object.keys(categoryMap).map(cat => ({
+    name: cat.charAt(0).toUpperCase() + cat.slice(1),
+    value: categoryMap[cat],
+  }));
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+
+  const trendMap = allExpenses.reduce((acc, exp) => {
+    const date = dayjs(exp.expense_date).format('MMM DD');
+    acc[date] = (acc[date] || 0) + exp.amount;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const lineData = Object.keys(trendMap)
+    .sort((a, b) => dayjs(a, 'MMM DD').valueOf() - dayjs(b, 'MMM DD').valueOf())
+    .map(date => ({
+      date,
+      amount: trendMap[date],
+    }));
+
   return (
     <div className="expenses-page">
+      {/* Analytics widgets */}
+      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+        <Col xs={24} sm={8}>
+          <Card>
+            <Statistic
+              title="Total Expenses"
+              value={totalAmount}
+              prefix="₹"
+              valueStyle={{ color: '#4f46e5' }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={8}>
+          <Card>
+            <Statistic
+              title="Approved Amount"
+              value={approvedAmount}
+              prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
+              valueStyle={{ color: '#52c41a' }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={8}>
+          <Card>
+            <Statistic
+              title="Pending Amount"
+              value={pendingAmount}
+              prefix={<ClockCircleOutlined style={{ color: '#faad14' }} />}
+              valueStyle={{ color: '#faad14' }}
+            />
+          </Card>
+        </Col>
+      </Row>
+
+      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+        <Col xs={24} md={12}>
+          <Card title="Expense Breakdown by Category">
+            <div style={{ height: 300 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    paddingAngle={5}
+                    dataKey="value"
+                    label
+                  >
+                    {pieData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <RechartsTooltip formatter={(val: number) => `₹${val.toLocaleString()}`} />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        </Col>
+        <Col xs={24} md={12}>
+          <Card title="Expense Trend (This Month)">
+            <div style={{ height: 300 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={lineData}>
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <RechartsTooltip formatter={(val: number) => `₹${val.toLocaleString()}`} />
+                  <Line type="monotone" dataKey="amount" stroke="#4f46e5" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        </Col>
+      </Row>
+
       <Card
         title={<h2>Expense Management</h2>}
         extra={

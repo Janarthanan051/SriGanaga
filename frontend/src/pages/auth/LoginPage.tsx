@@ -81,10 +81,19 @@ const LoginPage: React.FC = () => {
           </Button>
         </Space>
 
-        <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '12px', color: '#999' }}>
-          <p>Demo Credentials:</p>
-          <p>Email: admin@sriganga.com</p>
-          <p>Password: Demo@123</p>
+        <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '12px', color: '#666' }}>
+          <p><strong>Demo Roles Available:</strong></p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', textAlign: 'left', background: '#f5f5f5', padding: '10px', borderRadius: '4px' }}>
+            <span>admin@sriganga.com</span><span>Admin@123</span>
+            <span>hr_manager@sriganga.com</span><span>hrmanager@123</span>
+            <span>warehouse_manager@sriganga.com</span><span>warehousemanager@123</span>
+            <span>accountant@sriganga.com</span><span>accountant@123</span>
+            <span>vendor_manager@sriganga.com</span><span>vendormanager@123</span>
+            <span>production_manager@sriganga.com</span><span>productionmanager@123</span>
+            <span>store_keeper@sriganga.com</span><span>storekeeper@123</span>
+            <span>sales_executive@sriganga.com</span><span>salesexecutive@123</span>
+          </div>
+          <p style={{ marginTop: '10px', color: '#999' }}>Format: [role]@sriganga.com / [role(no_underscores)]@123</p>
         </div>
       </Card>
     </div>
