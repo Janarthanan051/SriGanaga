@@ -40,7 +40,7 @@ import { ExportOptions } from '@components/shared/ExportOptions';
 import EmployeeDashboard from '../employees/EmployeeDashboard';
 import './Dashboard.css';
 
-type UserRole = 'admin' | 'hr_manager' | 'warehouse_manager' | 'accountant' | 'vendor_manager';
+type UserRole = 'admin' | 'super_admin' | 'owner' | 'hr_manager' | 'warehouse_manager' | 'accountant' | 'vendor_manager' | 'logistics_manager' | 'production_manager' | 'sales_executive' | 'employee';
 
 interface DashboardStats {
   totalProducts: number;
@@ -77,7 +77,7 @@ interface StatCardProps {
 
 const Dashboard: React.FC = () => {
   const role = useAppSelector((state) => state.auth.user?.user_metadata?.role);
-  const validRoles: UserRole[] = ['admin', 'hr_manager', 'warehouse_manager', 'accountant', 'vendor_manager'];
+  const validRoles: UserRole[] = ['admin', 'super_admin', 'owner', 'hr_manager', 'warehouse_manager', 'accountant', 'vendor_manager', 'logistics_manager', 'production_manager', 'sales_executive', 'employee'];
   const selectedRole = validRoles.includes(role as UserRole) ? (role as UserRole) : undefined;
   const [stats, setStats] = useState<DashboardStats>({
     totalProducts: 0,
@@ -288,25 +288,33 @@ const Dashboard: React.FC = () => {
     </Card>
   );
 
-  const roleNameMap: Record<UserRole | 'employee' | 'logistics_manager' | 'undefined', string> = {
+  const roleNameMap: Record<UserRole | 'undefined', string> = {
     admin: 'Administrator',
+    super_admin: 'Super Admin',
+    owner: 'Owner',
     hr_manager: 'HR Manager',
     warehouse_manager: 'Warehouse Manager',
     accountant: 'Accountant',
     vendor_manager: 'Vendor Manager',
     employee: 'Employee',
     logistics_manager: 'Logistics Manager',
+    production_manager: 'Production Manager',
+    sales_executive: 'Sales Executive',
     undefined: 'Team Member',
   };
 
-  const roleDescriptionMap: Record<UserRole | 'employee' | 'logistics_manager' | 'undefined', string> = {
+  const roleDescriptionMap: Record<UserRole | 'undefined', string> = {
     admin: 'Full ERP access with company-wide analytics and management controls.',
+    super_admin: 'Full ERP access with company-wide analytics and management controls.',
+    owner: 'Full ERP access with company-wide analytics and management controls.',
     hr_manager: 'HR dashboard with employee headcount, payroll tracking, and attendance summaries.',
     warehouse_manager: 'Warehouse controls for inventory, stock movement, and order readiness.',
     accountant: 'Finance dashboard focused on expenses, payroll, and reporting insights.',
     vendor_manager: 'Supplier and purchase order insights for vendors and procurement.',
     employee: 'General employee dashboard for self-service and overview.',
     logistics_manager: 'Logistics tracking, stock dispatching, and inventory movements.',
+    production_manager: 'Production tracking, BOM management, and manufacturing operations.',
+    sales_executive: 'Sales performance, revenue trends, and order management.',
     undefined: 'Your account is logged in, but no business role is assigned yet.',
   };
 
