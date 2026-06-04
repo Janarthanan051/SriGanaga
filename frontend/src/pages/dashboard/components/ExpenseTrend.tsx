@@ -17,7 +17,7 @@ interface ExpenseTrendProps {
   role?: UserRole;
 }
 
-const ExpenseTrend: React.FC<ExpenseTrendProps> = ({ expensesTrend, role }) => {
+const ExpenseTrend: React.FC<ExpenseTrendProps> = ({ expensesTrend }) => {
   // If we only want this to show for certain roles, we could check here.
   // In original code, the Expense Trend block did not have a role check wrapping the Row, 
   // but let's keep it clean.
